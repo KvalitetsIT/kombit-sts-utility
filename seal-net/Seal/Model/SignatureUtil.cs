@@ -13,7 +13,7 @@ namespace dk.nsi.seal.Model
     public static class SignatureUtil
     {
         public static bool Validate(XElement signatureToValidate, bool checkTrustForTrustedCertificates, bool checkRevoked, bool checkDate) =>
-            Validate(signatureToValidate, checkTrustForTrustedCertificates, checkRevoked, checkDate);
+            Validate(signatureToValidate, null, checkTrustForTrustedCertificates, checkRevoked, checkDate);
 
         public static bool Validate(XElement signatureToValidate, Federation.Federation federation, bool checkTrustForTrustedCertificates, bool checkRevoked, bool checkDate)
         {
