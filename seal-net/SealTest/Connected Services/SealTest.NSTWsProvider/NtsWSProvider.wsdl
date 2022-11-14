@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns1="http://web.nts.nsp.nsi.dk/" name="NtsWSProvider" targetNamespace="http://web.nts.nsp.nsi.dk/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema xmlns="http://web.nts.nsp.nsi.dk/" xmlns:tns="http://nspop.dk/nts/2013/05" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://web.nts.nsp.nsi.dk/">
+      <xsd:element name="invoke" nillable="true" type="xsd:anyType" />
+      <xsd:element name="invokeResponse" nillable="true" type="xsd:anyType" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="invoke">
+    <wsdl:part name="invoke" element="ns1:invoke" />
+  </wsdl:message>
+  <wsdl:message name="invokeResponse">
+    <wsdl:part name="invokeResponse" element="ns1:invokeResponse" />
+  </wsdl:message>
+  <wsdl:portType name="NtsWSProvider">
+    <wsdl:operation name="invoke">
+      <wsdl:input name="invoke" message="ns1:invoke" />
+      <wsdl:output name="invokeResponse" message="ns1:invokeResponse" />
+    </wsdl:operation>
+  </wsdl:portType>
+</wsdl:definitions>

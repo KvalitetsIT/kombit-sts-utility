@@ -1,0 +1,171 @@
+<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:disco="urn:liberty:disco:2006-08" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:sec="urn:liberty:security:2006-08" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="_29c6b1e3-3513-4295-9cec-6b9f6c9abc41" IssueInstant="2014-10-22T12:40:32Z" Version="2.0">
+    <saml:Issuer>Test STS</saml:Issuer>
+    <ds:Signature Id="OCESSignature">
+        <ds:SignedInfo>
+            <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+            <ds:Reference URI="#_29c6b1e3-3513-4295-9cec-6b9f6c9abc41">
+                <ds:Transforms>
+                    <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                    <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                </ds:Transforms>
+                <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                <ds:DigestValue>1/hVK9j4f74tKFecVpCI05xEOp4=</ds:DigestValue>
+            </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>QQC+i9/AEW+30h0JHH5oxwbuHgkv6gxZY/x9wpWhgPHurgEgm2uCtB8RwXqTtk9ATmK9zsgplGVU8rJpxgGq8wN+0tDfrQOgtLGLbVeiJ/4kEVdVGNW61s+HRaD8DRsnqGt2XcG2o57jpPLFGxUpLy/FJc7eRH34bNRKiZAQGMo=</ds:SignatureValue>
+        <ds:KeyInfo>
+            <ds:X509Data>
+                <ds:X509Certificate>MIIFDzCCBHigAwIBAgIEQDhGIzANBgkqhkiG9w0BAQUFADA/MQswCQYDVQQGEwJESzEMMAoGA1UEChMDVERDMSIwIAYDVQQDExlUREMgT0NFUyBTeXN0ZW10ZXN0IENBIElJMB4XDTEyMTEwNjA4MjAyM1oXDTE0MTEwNjA4NTAyM1owgZUxCzAJBgNVBAYTAkRLMS4wLAYDVQQKEyVKRVJOQUxERVJCWUVOUyBWRU5ORVIgLy8gQ1ZSOjE5MzQzNjM0MVYwJQYDVQQFEx5DVlI6MTkzNDM2MzQtVUlEOjExNjU4MTM2MTMxODMwLQYDVQQDEyZKRVJOQUxERVJCWUVOUyBWRU5ORVIgLSBWaWMgdmFsaWRWT0NFUzCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA3Cya1Kbm+mxr6mYBjg6k8jbj2dwubJa6jjuz2c/I5yGzX4UQpcx5JxBBPbxDXwaCMefNCP9hXmmrjjhCUV+0dEZxRuNCHZDM9Ny9EXdBC1nfjzkowaC5V38LHPPGScwM5g0/ZBf6XBf4W+bSoxb4hxeekSkzs6SX4j+kM/E/kYsCAwEAAaOCAr8wggK7MA4GA1UdDwEB/wQEAwIDuDArBgNVHRAEJDAigA8yMDEyMTEwNjA4MjAyM1qBDzIwMTQxMTA2MDg1MDIzWjBGBggrBgEFBQcBAQQ6MDgwNgYIKwYBBQUHMAGGKmh0dHA6Ly90ZXN0Lm9jc3AuY2VydGlmaWthdC5kay9vY3NwL3N0YXR1czCCAQMGA1UdIASB+zCB+DCB9QYJKQEBAQEBAQEDMIHnMC8GCCsGAQUFBwIBFiNodHRwOi8vd3d3LmNlcnRpZmlrYXQuZGsvcmVwb3NpdG9yeTCBswYIKwYBBQUHAgIwgaYwChYDVERDMAMCAQEagZdUREMgVGVzdCBDZXJ0aWZpa2F0ZXIgZnJhIGRlbm5lIENBIHVkc3RlZGVzIHVuZGVyIE9JRCAxLjEuMS4xLjEuMS4xLjEuMS4zLiBUREMgVGVzdCBDZXJ0aWZpY2F0ZXMgZnJvbSB0aGlzIENBIGFyZSBpc3N1ZWQgdW5kZXIgT0lEIDEuMS4xLjEuMS4xLjEuMS4xLjMuMBwGCWCGSAGG+EIBDQQPFg1vcmdhbldlYk5vRGlyMA8GA1UdEQQIMAaBBG51bGwwgZcGA1UdHwSBjzCBjDBXoFWgU6RRME8xCzAJBgNVBAYTAkRLMQwwCgYDVQQKEwNUREMxIjAgBgNVBAMTGVREQyBPQ0VTIFN5c3RlbXRlc3QgQ0EgSUkxDjAMBgNVBAMTBUNSTDM2MDGgL6AthitodHRwOi8vdGVzdC5jcmwub2Nlcy5jZXJ0aWZpa2F0LmRrL29jZXMuY3JsMB8GA1UdIwQYMBaAFByYCUcaTDi5EMUEKVvx9E6Aasx+MB0GA1UdDgQWBBSlvlxvAUer8dYno4qlIIgyUBrStzAJBgNVHRMEAjAAMBkGCSqGSIb2fQdBAAQMMAobBFY3LjEDAgOoMA0GCSqGSIb3DQEBBQUAA4GBAGPrsDmTKTj7yYEq2mG6IuWqaztKPp8fjGAmdvlJTHGnHUf1DKYCXwfnSDbjpIRimYnbVAW1nnld60KoPBl4uE2wAbjXYzaBFUMVA9J0qkS5iTnQ9vHm3fChHZdLlDNSYBIBnvZ7BD7i/NydkwkObmsvZ6ax9eo8hVk1kPz6T6m3</ds:X509Certificate>
+            </ds:X509Data>
+        </ds:KeyInfo>
+    </ds:Signature>
+    <saml:Subject>
+        <saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName">C=DK,O=JERNALDERBYENS VENNER // CVR:19343634,CN=Mike validMOCES,Serial=CVR:19343634-RID:1165813849809</saml:NameID>
+        <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+            <saml:SubjectConfirmationData NotOnOrAfter="2014-10-22T12:45:32Z" Recipient="http://sundhed.dk/saml/SAMLAssertionConsumer"/>
+        </saml:SubjectConfirmation>
+    </saml:Subject>
+    <saml:Conditions NotBefore="2014-10-22T12:40:32Z" NotOnOrAfter="2014-10-22T13:40:32Z">
+        <saml:AudienceRestriction>
+            <saml:Audience>http://sundhed.dk</saml:Audience>
+        </saml:AudienceRestriction>
+    </saml:Conditions>
+    <saml:AuthnStatement AuthnInstant="2014-10-22T12:35:32Z" SessionIndex="_29c6b1e3-3513-4295-9cec-6b9f6c9abc41">
+        <saml:AuthnContext>
+            <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:X509</saml:AuthnContextClassRef>
+        </saml:AuthnContext>
+    </saml:AuthnStatement>
+    <saml:AttributeStatement>
+        <saml:Attribute FriendlyName="surName" Name="urn:oid:2.5.4.4" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">Dampf</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute FriendlyName="CommonName" Name="urn:oid:2.5.4.3" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">Hans Dampf</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute FriendlyName="email" Name="urn:oid:0.9.2342.19200300.100.1.3" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string"/>
+        </saml:Attribute>
+        <saml:Attribute Name="dk:gov:saml:attribute:AssuranceLevel" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">3</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="dk:gov:saml:attribute:SpecVer" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">DK-SAML-2.0</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="dk:gov:saml:attribute:CvrNumberIdentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">12345</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute FriendlyName="organizationName" Name="urn:oid:2.5.4.10" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">Pelles Pølsefabrik</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="dk:gov:saml:attribute:CprNumberIdentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">1111111118</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="urn:oid:2.5.29.29" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">C=DK,O=TDC,CN=TDC OCES Systemtest CA II</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute FriendlyName="Uid" Name="urn:oid:0.9.2342.19200300.100.1.1" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">CVR:19343634-RID:1165813849809</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="dk:gov:saml:attribute:RidNumberIdentifier" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">1165813849809</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute FriendlyName="serialNumber" Name="urn:oid:2.5.4.5" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">4038461b</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="dk:gov:saml:attribute:IsYouthCert" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">false</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="urn:liberty:disco:2006-08:DiscoveryEPR" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri">
+            <saml:AttributeValue>
+                <wsa:EndpointReference>
+                    <wsa:Address>http://sosi.dk/sts</wsa:Address>
+                    <wsa:Metadata>
+                        <disco:Abstract>A SOSI idcard</disco:Abstract>
+                        <disco:ServiceType>dk:sosi:1-0-1</disco:ServiceType>
+                        <disco:ProviderID>http://sosi.dk/sts</disco:ProviderID>
+                        <disco:SecurityContext>
+                            <disco:SecurityMechID>urn:liberty:security:2006-08:TLS:SAMLV2</disco:SecurityMechID>
+                            <sec:Token usage="urn:liberty:security:tokenusage:2006-08:SecurityToken">
+                                <saml:Assertion IssueInstant="2014-10-22T12:35:32Z" Version="2.0" id="IDCard" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+                                    <saml:Issuer>TheSOSILibrary</saml:Issuer>
+                                    <saml:Subject>
+                                        <saml:NameID Format="medcom:other">SubjectDN={CN=Mike validMOCES + SERIALNUMBER=CVR:19343634-RID:1165813849809, O=JERNALDERBYENS VENNER // CVR:19343634, C=DK},IssuerDN={CN=TDC OCES Systemtest CA II, O=TDC, C=DK},CertSerial={1077429787}</saml:NameID>
+                                        <saml:SubjectConfirmation>
+                                            <saml:ConfirmationMethod>urn:oasis:names:tc:SAML:2.0:cm:holder-of-key</saml:ConfirmationMethod>
+                                            <saml:SubjectConfirmationData>
+                                                <ds:KeyInfo>
+                                                    <ds:KeyName>OCESSignature</ds:KeyName>
+                                                </ds:KeyInfo>
+                                            </saml:SubjectConfirmationData>
+                                        </saml:SubjectConfirmation>
+                                    </saml:Subject>
+                                    <saml:Conditions NotBefore="2014-10-22T12:35:32Z" NotOnOrAfter="2014-10-23T12:35:32Z"/>
+                                    <saml:AttributeStatement id="IDCardData">
+                                        <saml:Attribute Name="sosi:IDCardID">
+                                            <saml:AttributeValue>hfNn1EEmFt2dFkl3ZEg9wQ==</saml:AttributeValue>
+                                        </saml:Attribute>
+                                        <saml:Attribute Name="sosi:IDCardVersion">
+                                            <saml:AttributeValue>1.0.1</saml:AttributeValue>
+                                        </saml:Attribute>
+                                        <saml:Attribute Name="sosi:IDCardType">
+                                            <saml:AttributeValue>user</saml:AttributeValue>
+                                        </saml:Attribute>
+                                        <saml:Attribute Name="sosi:AuthenticationLevel">
+                                            <saml:AttributeValue>4</saml:AttributeValue>
+                                        </saml:Attribute>
+                                    </saml:AttributeStatement>
+                                    <saml:AttributeStatement id="UserLog">
+                                        <saml:Attribute Name="medcom:UserCivilRegistrationNumber">
+                                            <saml:AttributeValue>1111111118</saml:AttributeValue>
+                                        </saml:Attribute>
+                                        <saml:Attribute Name="medcom:UserGivenName">
+                                            <saml:AttributeValue>Hans</saml:AttributeValue>
+                                        </saml:Attribute>
+                                        <saml:Attribute Name="medcom:UserSurName">
+                                            <saml:AttributeValue>Dampf</saml:AttributeValue>
+                                        </saml:Attribute>
+                                        <saml:Attribute Name="medcom:UserRole">
+                                            <saml:AttributeValue>pølsemager</saml:AttributeValue>
+                                        </saml:Attribute>
+                                    </saml:AttributeStatement>
+                                    <saml:AttributeStatement id="SystemLog">
+                                        <saml:Attribute Name="medcom:ITSystemName">
+                                            <saml:AttributeValue>IT-System</saml:AttributeValue>
+                                        </saml:Attribute>
+                                        <saml:Attribute Name="medcom:CareProviderID" NameFormat="medcom:cvrnumber">
+                                            <saml:AttributeValue>12345</saml:AttributeValue>
+                                        </saml:Attribute>
+                                        <saml:Attribute Name="medcom:CareProviderName">
+                                            <saml:AttributeValue>Pelles Pølsefabrik</saml:AttributeValue>
+                                        </saml:Attribute>
+                                    </saml:AttributeStatement>
+                                    <ds:Signature id="OCESSignature">
+                                        <ds:SignedInfo>
+                                            <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                                            <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+                                            <ds:Reference URI="#IDCard">
+                                                <ds:Transforms>
+                                                    <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                                                    <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                                                </ds:Transforms>
+                                                <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                                                <ds:DigestValue>XDFwiMk/5QN3V1p9r+ZsofIO7hY=</ds:DigestValue>
+                                            </ds:Reference>
+                                        </ds:SignedInfo>
+                                        <ds:SignatureValue>CZcKEF3WnpYZ8Z2OWLat9ovZabBwMCq/wvBdNkul02KjDd56vxVsfYiY3u1jkv6AGAdAUdYqNxCTFU8YuqntftKpLnl2wc9uiGCoQ+xf4kXJjWfklSVZdoYrGMEU51sycJP9geDfaaC5u4U5xP1JsU4exhEEl1eRRWFpqIWbPMA=</ds:SignatureValue>
+                                        <ds:KeyInfo>
+                                            <ds:X509Data>
+                                                <ds:X509Certificate>MIIFBTCCBG6gAwIBAgIEQDhGGzANBgkqhkiG9w0BAQUFADA/MQswCQYDVQQGEwJESzEMMAoGA1UEChMDVERDMSIwIAYDVQQDExlUREMgT0NFUyBTeXN0ZW10ZXN0IENBIElJMB4XDTEyMTEwNjA4MDQ1N1oXDTE0MTEwNjA4MzQ1N1owfjELMAkGA1UEBhMCREsxLjAsBgNVBAoTJUpFUk5BTERFUkJZRU5TIFZFTk5FUiAvLyBDVlI6MTkzNDM2MzQxPzAWBgNVBAMTD01pa2UgdmFsaWRNT0NFUzAlBgNVBAUTHkNWUjoxOTM0MzYzNC1SSUQ6MTE2NTgxMzg0OTgwOTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAsIfC2DKYYVWA0d01/TV5NqkdgNRrFLGWQiWLoeIKGch3w6vMCx1G/tyZeTSotoIetUhKFsxpt3j74UAialHijfF8EvXBJp662KFO1/npDwS7B6hKGK+unae5IRXjrQlSVS0f2XEl3FPmAJ3m2bGWheNBLz4rCueOLvsbSu+HvTUCAwEAAaOCAs0wggLJMA4GA1UdDwEB/wQEAwID+DArBgNVHRAEJDAigA8yMDEyMTEwNjA4MDQ1N1qBDzIwMTQxMTA2MDgzNDU3WjBGBggrBgEFBQcBAQQ6MDgwNgYIKwYBBQUHMAGGKmh0dHA6Ly90ZXN0Lm9jc3AuY2VydGlmaWthdC5kay9vY3NwL3N0YXR1czCCAQMGA1UdIASB+zCB+DCB9QYJKQEBAQEBAQECMIHnMC8GCCsGAQUFBwIBFiNodHRwOi8vd3d3LmNlcnRpZmlrYXQuZGsvcmVwb3NpdG9yeTCBswYIKwYBBQUHAgIwgaYwChYDVERDMAMCAQEagZdUREMgVGVzdCBDZXJ0aWZpa2F0ZXIgZnJhIGRlbm5lIENBIHVkc3RlZGVzIHVuZGVyIE9JRCAxLjEuMS4xLjEuMS4xLjEuMS4yLiBUREMgVGVzdCBDZXJ0aWZpY2F0ZXMgZnJvbSB0aGlzIENBIGFyZSBpc3N1ZWQgdW5kZXIgT0lEIDEuMS4xLjEuMS4xLjEuMS4xLjIuMB8GCWCGSAGG+EIBDQQSFhBlbXBsb3llZVdlYk5vRGlyMBoGA1UdEQQTMBGBD3N1cHBvcnRAc29zaS5kazCBlwYDVR0fBIGPMIGMMFegVaBTpFEwTzELMAkGA1UEBhMCREsxDDAKBgNVBAoTA1REQzEiMCAGA1UEAxMZVERDIE9DRVMgU3lzdGVtdGVzdCBDQSBJSTEOMAwGA1UEAxMFQ1JMMzYwMaAvoC2GK2h0dHA6Ly90ZXN0LmNybC5vY2VzLmNlcnRpZmlrYXQuZGsvb2Nlcy5jcmwwHwYDVR0jBBgwFoAUHJgJRxpMOLkQxQQpW/H0ToBqzH4wHQYDVR0OBBYEFLPM3o6Ndck6nDn/wfkheF1AzezlMAkGA1UdEwQCMAAwGQYJKoZIhvZ9B0EABAwwChsEVjcuMQMCA6gwDQYJKoZIhvcNAQEFBQADgYEAGtBLG+Sr8+FtZGpAaIVelfn7bypJCDkZnZ/WIYZ4Z2lGpMKyqRby1EOlHaICA5H2lp9ceDog8EOy484+J5lphSKPu1BUGcJjnswKMPk+L2lYpAFh/+ybnYoGLCSYJXGYczmRfeGFDlO1FI8pCPW6vhd+x0IF+ufdQch2Q/i8Wkk=</ds:X509Certificate>
+                                            </ds:X509Data>
+                                        </ds:KeyInfo>
+                                    </ds:Signature>
+                                </saml:Assertion>
+                            </sec:Token>
+                        </disco:SecurityContext>
+                    </wsa:Metadata>
+                </wsa:EndpointReference>
+            </saml:AttributeValue>
+        </saml:Attribute>
+    </saml:AttributeStatement>
+</saml:Assertion>

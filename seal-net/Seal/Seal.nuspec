@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Seal.net</id>
+    <version>$version$</version>
+    <title>Seal.Net</title>
+    <authors>National Serviceplatform</authors>
+    <owners>National Serviceplatform</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Seal.NET er et API som har til formål at lette udviklingen af software som overholder DGWS.
+Seal.NET indpakker detaljerne vedrørende DGWS, og hjælper med at bygge, signere og serialisere id-kort</description>
+    <releaseNotes>Initial NuGet release of Seal.NET</releaseNotes>
+    <copyright>Copyright @ 2016</copyright>
+    <tags>DGWS</tags>
+  </metadata>
+  <files>
+    <file src="bin\$configuration$\DgwsTypes.dll" target="lib\net462\" />
+    <file src="bin\$configuration$\DgwsTypes.pdb" target="lib\net462\" />
+    <file src="bin\$configuration$\Seal.pdb" target="lib\net462\" />
+</files>
+</package>

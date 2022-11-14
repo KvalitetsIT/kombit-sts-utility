@@ -1,0 +1,48 @@
+<Assertion ID="_129c33ba-0d51-48f5-bd7d-21c337233de1" IssueInstant="2017-02-14T13:07:05.897Z" Version="2.0" xmlns="urn:oasis:names:tc:SAML:2.0:assertion">
+	<Issuer>https://saml.nemlog-in.dk</Issuer>
+	<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+		<ds:SignedInfo>
+			<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+			<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+			<ds:Reference URI="#_129c33ba-0d51-48f5-bd7d-21c337233de1">
+				<ds:Transforms>
+					<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+					<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+				</ds:Transforms>
+				<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+				<ds:DigestValue>cbEgMDmlsQwmWmIwFhPIAqmCg1WDaguUbvJZCLQMLV4=</ds:DigestValue>
+			</ds:Reference>
+		</ds:SignedInfo>
+		<ds:SignatureValue>P4SYaSUsMcnLjgid8ClUi2NBOGxdnFRHtAR66vWD7tmznUFk/4hZbCHAPzRfmoFTAyFURIlZOyDdDQWAIDLZi17ENQKkK9xidD7KdSOzyGHr/AHMDlFVKbKWnfAto+7pgYjEgYFF1Q6Yf5JWDGUTbpqTnKE7C503X49zP8PQKibnK+t3T+egLrPprdXT38BqFN6KsXQjr2YNUDr108cm2nM1SY/Be6LRry9YHmGagxq6ItINTnKasw6x7P6NcOgwJWQsLP/P2sI5XsOCRxa8LLomuYjqqBoc5MVp2zCAr+noDm5RtBkvzT1nnkaJLiO+O89O9oB12zZpPMDQ5C7/Ug==</ds:SignatureValue>
+		<KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+			<X509Data>
+				<X509Certificate>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</X509Certificate>
+			</X509Data>
+		</KeyInfo>
+	</ds:Signature>
+	<Subject>
+		<NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName">C=DK,O=Ingen organisatorisk tilknytning,CN=Lars Larsen,Serial=PID:9208-2002-2-514358910503</NameID>
+		<SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:holder-of-key">
+			<SubjectConfirmationData a:type="KeyInfoConfirmationDataType" xmlns:a="http://www.w3.org/2001/XMLSchema-instance">
+				<KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+					<X509Data>
+						<X509Certificate>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</X509Certificate>
+					</X509Data>
+				</KeyInfo>
+			</SubjectConfirmationData>
+		</SubjectConfirmation>
+	</Subject>
+	<Conditions NotOnOrAfter="2017-02-14T15:07:05.897Z">
+		<AudienceRestriction>
+			<Audience>https://bootstrap.sts.nemlog-in.dk/</Audience>
+		</AudienceRestriction>
+	</Conditions>
+	<AttributeStatement>
+		<Attribute Name="dk:nemlogin:saml:attribute:IdPSessionIndex" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue>D3-92-A8-AC-09-DF-73-08-46-56-A4-ED-B5-74-44-99-A2-2B-2A-D8</AttributeValue>
+		</Attribute>
+		<Attribute Name="dk:nemlogin:saml:attribute:SpEntityId" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+			<AttributeValue>https://saml.test1.fmk.netic.dk/fmk/</AttributeValue>
+		</Attribute>
+	</AttributeStatement>
+</Assertion>

@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+  <soapenv:Header>
+    <wsse:Security mustUnderstand="1" wsu:Id="security">
+      <wsu:Timestamp wsu:Id="ts">
+        <wsu:Created>2022-01-20T14:06:22Z</wsu:Created>
+      </wsu:Timestamp>
+      <ds:Signature>
+        <ds:SignedInfo>
+          <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+          <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+          <ds:Reference URI="#body">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>jxSw7goDUwaTMPUa5ndCrDFJnN4=</ds:DigestValue>
+          </ds:Reference>
+          <ds:Reference URI="#ts">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>lcP+R58tey7JqKjB5aPr+PoBTp8=</ds:DigestValue>
+          </ds:Reference>
+          <ds:Reference URI="#messageID">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>18fI/7X9IRmA8OrTgFMwRCPwwxE=</ds:DigestValue>
+          </ds:Reference>
+          <ds:Reference URI="#relatesTo">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>6C70KVgeY/3ySx+U4LTvHjuuotY=</ds:DigestValue>
+          </ds:Reference>
+          <ds:Reference URI="#action">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>3cXAhlhZH22NiSh7AttxKxBap7Q=</ds:DigestValue>
+          </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>p8X/AB6AIlUsHfjJkZBCpkaq7Ww8CQAOv9n6dn5GXpoutFrbatXodpOTl4UGtVX6SD8ycbpu+8go66ue8xCVgBhCpgdStm4F5Lu3wXvr3LcuAkv2U7z6NU7Y9tgflWDTaMJ9+heHGWRPw1c0DsLe9+NW2Wiqk+B76MdrEPeDG9Tk4Ba55zM1rQ6vkTkErM23IMsu1dGzVihzp6134T2CWq0QCJAE1sAz7tOT+Tc9RY+a60ODsRqkaaOW+oL2rtbMsoXb0hY6iJz4azQ9zrrNJO2t9wrnPC77l160wO2BeEDtBMOyVHF9zhmniD00RKResAleIUxhgIKBYtt3aJNxaw==</ds:SignatureValue>
+        <ds:KeyInfo>
+          <ds:X509Data>
+            <ds:X509Certificate>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</ds:X509Certificate>
+          </ds:X509Data>
+        </ds:KeyInfo>
+      </ds:Signature>
+    </wsse:Security>
+    <wsa:Action wsu:Id="action">http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue</wsa:Action>
+    <wsa:MessageID wsu:Id="messageID">urn:uuid:f55dcbc4-7e08-45d0-91e8-d4fcc0519441</wsa:MessageID>
+    <wsa:RelatesTo wsu:Id="relatesTo">urn:uuid:887eef4b-d2cc-427d-b189-e76c9ed7ea27</wsa:RelatesTo>
+  </soapenv:Header>
+  <soapenv:Body wsu:Id="body">
+    <wst:RequestSecurityTokenResponseCollection>
+      <wst:RequestSecurityTokenResponse Context="https://fmk">
+        <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
+        <wst:RequestedSecurityToken>
+          <saml:Assertion IssueInstant="2022-01-20T14:01:22Z" Version="2.0" id="IDCard" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+            <saml:Issuer>TEST1-NSP-STS</saml:Issuer>
+            <saml:Subject>
+              <saml:NameID Format="medcom:other">Mads_Skjern</saml:NameID>
+              <saml:SubjectConfirmation>
+                <saml:ConfirmationMethod>urn:oasis:names:tc:SAML:2.0:cm:holder-of-key</saml:ConfirmationMethod>
+                <saml:SubjectConfirmationData>
+                  <ds:KeyInfo>
+                    <ds:KeyName>OCESSignature</ds:KeyName>
+                  </ds:KeyInfo>
+                </saml:SubjectConfirmationData>
+              </saml:SubjectConfirmation>
+            </saml:Subject>
+            <saml:Conditions NotBefore="2022-01-20T14:01:22Z" NotOnOrAfter="2022-01-21T14:01:22Z"/>
+            <saml:AttributeStatement id="IDCardData">
+              <saml:Attribute Name="sosi:IDCardID">
+                <saml:AttributeValue>kmEt6GH00JrKhUC5YPVFDQ==</saml:AttributeValue>
+              </saml:Attribute>
+              <saml:Attribute Name="sosi:IDCardVersion">
+                <saml:AttributeValue>1.0.1</saml:AttributeValue>
+              </saml:Attribute>
+              <saml:Attribute Name="sosi:IDCardType">
+                <saml:AttributeValue>user</saml:AttributeValue>
+              </saml:Attribute>
+              <saml:Attribute Name="sosi:AuthenticationLevel">
+                <saml:AttributeValue>4</saml:AttributeValue>
+              </saml:Attribute>
+            </saml:AttributeStatement>
+            <saml:AttributeStatement id="UserLog">
+              <saml:Attribute Name="medcom:UserCivilRegistrationNumber">
+                <saml:AttributeValue>1212714321</saml:AttributeValue>
+              </saml:Attribute>
+              <saml:Attribute Name="medcom:UserGivenName">
+                <saml:AttributeValue>NSTSSnullAnull</saml:AttributeValue>
+              </saml:Attribute>
+              <saml:Attribute Name="medcom:UserSurName">
+                <saml:AttributeValue>Olsen</saml:AttributeValue>
+              </saml:Attribute>
+              <saml:Attribute Name="medcom:UserRole">
+                <saml:AttributeValue>urn:dk:healthcare:national-federation-role:code:99991:value:TestRolle1</saml:AttributeValue>
+              </saml:Attribute>
+            </saml:AttributeStatement>
+            <saml:AttributeStatement id="SystemLog">
+              <saml:Attribute Name="medcom:ITSystemName">
+                <saml:AttributeValue>Korsbæk Kommunes IT systemer</saml:AttributeValue>
+              </saml:Attribute>
+              <saml:Attribute Name="medcom:CareProviderID" NameFormat="medcom:cvrnumber">
+                <saml:AttributeValue>20301823</saml:AttributeValue>
+              </saml:Attribute>
+              <saml:Attribute Name="medcom:CareProviderName">
+                <saml:AttributeValue>Korsbæk Kommune</saml:AttributeValue>
+              </saml:Attribute>
+            </saml:AttributeStatement>
+            <ds:Signature id="OCESSignature">
+              <ds:SignedInfo>
+                <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+                <ds:Reference URI="#IDCard">
+                  <ds:Transforms>
+                    <ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                    <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                  </ds:Transforms>
+                  <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                  <ds:DigestValue>xk/GS9ITkCVQy6zc/IoXqTOT3Ac=</ds:DigestValue>
+                </ds:Reference>
+              </ds:SignedInfo>
+              <ds:SignatureValue>JUvOJeiSj/kVS5W2NMM2YpUDjQ/YGecLP0+ryj21u44ZLZrRkcyt3Uh7dRdnSLFKEjlo1+kIWQ4UvgMGGrUqJVFJMb90id1225vTNUsKiR+x9ZI1pOQ1PT6ZqmgM3ummfZuQ0zfCzWZOfFw3s3fzBc04NAmXP3wYuqHgTKGUt/E7h7St4H01Kkt/Z+ErCrI2XflNODKABvRy8kupcC4dY0nowgb3MeGuaKchESex58qbhCI95lnkqD6SgoUzosxyWl2jnNiu8u39ZV6ub/ZO6hD+0mMtJLxu5soA7uJbWn1sCFoW/cGDSC9SDvcek5xUz+RwVRIYJrv1DcFsaxjJzQ==</ds:SignatureValue>
+              <ds:KeyInfo>
+                <ds:X509Data>
+                  <ds:X509Certificate>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</ds:X509Certificate>
+                </ds:X509Data>
+              </ds:KeyInfo>
+            </ds:Signature>
+          </saml:Assertion>
+        </wst:RequestedSecurityToken>
+        <wsp:AppliesTo>
+          <wsa:EndpointReference>
+            <wsa:Address>https://fmk</wsa:Address>
+          </wsa:EndpointReference>
+        </wsp:AppliesTo>
+        <wst:Lifetime>
+          <wsu:Created>2022-01-20T14:01:22Z</wsu:Created>
+          <wsu:Expires>2022-01-21T14:01:22Z</wsu:Expires>
+        </wst:Lifetime>
+      </wst:RequestSecurityTokenResponse>
+    </wst:RequestSecurityTokenResponseCollection>
+  </soapenv:Body>
+</soapenv:Envelope>

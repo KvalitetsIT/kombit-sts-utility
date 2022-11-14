@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="dk.nsi.seal.Factories.SOSIFactory">
+    <Position X="3.5" Y="1.75" Width="2.75" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>EAgAMABAAAABEAAAAAAAUAAAAAAQAAAAQQAAAAAAAAA=</HashCode>
+      <FileName>Factories\SOSIFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Factories.OIOSAMLFactory">
+    <Position X="6.75" Y="1.75" Width="3.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAABAAAAAAAAAAAAAQAAAAAAAEAAAAAABAA=</HashCode>
+      <FileName>Factories\OIOSAMLFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.DomBuilders.OioSamlAssertionToIdCardRequestDomBuilder" Collapsed="true">
+    <Position X="7.75" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAADAAACAAAAAAAMAIEAAQCAAAAAQAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\DomBuilders\OioSamlAssertionToIdCardRequestDomBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.DomBuilders.AbstractDomBuilder&lt;T&gt;" Collapsed="true">
+    <Position X="6.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAAAAGAAAAAAAAAAAIACAAAgAAAAAAAIAEAgAA=</HashCode>
+      <FileName>Model\DomBuilders\AbstractDomBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.DomBuilders.AbstractOioSamlTokenBuilder" Collapsed="true">
+    <Position X="4.5" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAEQAAEQAAABIAABIASAAIAGAAggQQAAAAAAQAAAAA=</HashCode>
+      <FileName>Model\DomBuilders\AbstractOioSamlTokenBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.DomBuilders.AbstractSamlBuilder" Collapsed="true">
+    <Position X="3.5" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AhEQAAAAAAGAAAAAAAAAAAIACAAAgAAAAAAAAAAAgAA=</HashCode>
+      <FileName>Model\DomBuilders\AbstractSamlBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.DomBuilders.AbstractSoapBuilder" Collapsed="true">
+    <Position X="6.5" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAAIAAEAAABAAAAAAYAAAAAA=</HashCode>
+      <FileName>Model\DomBuilders\AbstractSoapBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.DomBuilders.HealthcareContextTokenDomBuilder" Collapsed="true">
+    <Position X="2.25" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEBACAAACAAAIAAAAAIEgIAGAAAgAAAAAAAACAAgAA=</HashCode>
+      <FileName>Model\DomBuilders\HealthcareContextTokenDomBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.DomBuilders.IdCardOioWsTrustRequestDomBuilder" Collapsed="true">
+    <Position X="5.25" Y="11.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAAEAAAAAAAAAAAAAAAACAAAAEQAAAAAAAAAEAA=</HashCode>
+      <FileName>Model\DomBuilders\IdCardOioWsTrustRequestDomBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.DomBuilders.IdCardToOioSamlAssertionRequestDomBuilder" Collapsed="true">
+    <Position X="5.25" Y="12.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\DomBuilders\IdCardToOioSamlAssertionRequestDomBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.DomBuilders.OioWsTrustDomBuilder" Collapsed="true">
+    <Position X="6.5" Y="9.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAEAABAAAAAAAAAAAAAwgEQAACAAQAAAAAA=</HashCode>
+      <FileName>Model\DomBuilders\OioWsTrustDomBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.DomBuilders.OioWsTrustRequestDomBuilder" Collapsed="true">
+    <Position X="6.5" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAGAAQCACAAAAAACAAAAEQAACAEAAAAAAA=</HashCode>
+      <FileName>Model\DomBuilders\OioWsTrustRequestDomBuilder.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.Requests.OioWsTrustRequest" Collapsed="true">
+    <Position X="11.75" Y="10" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgQAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Requests\OioWsTrustRequest.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.Requests.IdCardToOioSamlAssertionRequest" Collapsed="true">
+    <Position X="10" Y="11.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Requests\IdCardToOioSamlAssertionRequest.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.Requests.OioSamlAssertionToIdCardRequest" Collapsed="true">
+    <Position X="12.75" Y="11.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAADAAACAAAAAAAAAIEAAAAAAAAAAgAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Requests\OioSamlAssertionToIdCardRequest.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.AbstractDomInfoExtractor" Collapsed="true">
+    <Position X="11.75" Y="7.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>IRAAGAAAQAAAAAAAAAAIAAAACAABAAAAAAAAEAAAAAA=</HashCode>
+      <FileName>Model\Requests\AbstractDomInfoExtractor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Model.OioWsTrustMessage" Collapsed="true">
+    <Position X="11.75" Y="9" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAACAAAAAAAAAAAAAAAAIAAEAAAAAAAAAAQ=</HashCode>
+      <FileName>Model\Requests\OioWsTrustMessage.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

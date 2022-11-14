@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="dk.nsi.seal.Federation.AbstractOcesCertificationAuthority" Collapsed="true">
+    <Position X="8.5" Y="7" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAgCAAAAAAAAAAAAAoAAwAAIAAA=</HashCode>
+      <FileName>Federation\AbstractOcesCertificationAuthority.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="dk.nsi.seal.Federation.CertificateStatus" Collapsed="true">
+    <Position X="12" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Federation\CertificateStatus.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Federation.CrlCertificateStatusChecker" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAACAAAAAAAAIAAAgBAIAAAAAEAAAAAAAAAAA=</HashCode>
+      <FileName>Federation\CrlCertificateStatusChecker.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="dk.nsi.seal.Federation.DistinguishedName" Collapsed="true">
+    <Position X="12" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEgAAAQAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAIQA=</HashCode>
+      <FileName>Federation\DistinguishedName.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Federation.Federation" Collapsed="true">
+    <Position X="8.5" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAABAAAAAAAAIAAAAAAAAEAAABAAAgAAAAAA=</HashCode>
+      <FileName>Federation\Federation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Federation.OcesCertificationAuthority" Collapsed="true">
+    <Position X="9.5" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAACAAAIAAAAAAgAAAAAIAAA=</HashCode>
+      <FileName>Federation\OcesCertificationAuthority.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Federation.OcesTestCertificationAuthority" Collapsed="true">
+    <Position X="7.25" Y="8.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAIAIAAA=</HashCode>
+      <FileName>Federation\OcesTestCertificationAuthority.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Federation.SosiFederation" Collapsed="true">
+    <Position X="7.25" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIgABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Federation\SosiFederation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Federation.SosiStsCertificateMatcher" Collapsed="true">
+    <Position X="13.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAQAAAAAA=</HashCode>
+      <FileName>Federation\SosiStsCertificateMatcher.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="dk.nsi.seal.Federation.SosiTestFederation" Collapsed="true">
+    <Position X="9.5" Y="5.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAABAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Federation\SosiTestFederation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="dk.nsi.seal.Federation.ICertificateStatusChecker" Collapsed="true">
+    <Position X="12" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Federation\ICertificateStatusChecker.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="dk.nsi.seal.Federation.ICertificationAuthority" Collapsed="true">
+    <Position X="13.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAgAAAAAA=</HashCode>
+      <FileName>Federation\ICertificationAuthority.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
