@@ -3,34 +3,35 @@ using dk.nsi.seal.Model.DomBuilders;
 using System.Xml.Linq;
 using dk.nsi.seal;
 using dk.nsi.seal.Model;
+using System.Security.Cryptography.X509Certificates;
 
 namespace KombitStsUtility;
 
-public class KombitStsRequest : OioWsTrustDomBuilder
+public class KombitStsRequest
 {
     public string WsAddressingTo { get; init; } = "";
-
-    public new string Action { get; init; } = "";
 
     public string Audience { get; }
 
     public string BinarySecurityToken { get; }
 
+    public X509Certificate2 Certificate { get; init; } = null; // TODO
+
     private readonly static XAttribute ValueType = new("ValueType", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
 
     private readonly static XAttribute EncodingType = new("EncodingType", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
 
+    public string Action { get; } = WsTrustConstants.Wst13IssueAction;
+
+    private XDocument localDoc;
+
     public KombitStsRequest(string audience, string binarySecurityToken)
     {
-        base.Action = Action;
-        this.Audience = audience;
-        this.BinarySecurityToken = binarySecurityToken;
+        Audience = audience;
+        BinarySecurityToken = binarySecurityToken;
     }
 
-    protected override void AddBodyContent(XElement body)
-    {
-        body.Add(RequestSecurityToken(Audience, BinarySecurityToken));
-    }
+    protected void AddBodyContent(XElement body) => body.Add(RequestSecurityToken(Audience, BinarySecurityToken));
 
 
     private static XElement RequestSecurityToken(string audience, string binarySecurityToken) => new(NameSpaces.xtrust + "RequestSecurityToken",
@@ -69,19 +70,117 @@ public class KombitStsRequest : OioWsTrustDomBuilder
         return doc.Root;
     }
 
-    protected override void AddExtraHeaders(XElement header)
+    protected void AddExtraHeaders(XElement header)
     {
-        var to = new XElement(NameSpaces.xwsa + "To");
-        header.Add(to);
-        to.Value = WsAddressingTo;
+        header.Add(new XElement(NameSpaces.xwsa + "To", WsAddressingTo));
+        header.Add(new XElement(NameSpaces.xwsa + "ReplyTo", new XElement("Address", "http://www.w3.org/2005/08/addressing/anonymous")));
     }
 
-    protected override void AddExtraNamespaceDeclarations(XElement envelope)
+    public XDocument Build()
     {
+        var document = CreateDocument();
+        SealUtilities.CheckAndSetSamlDsPreFix(document);
+        NameSpaces.SetMissingNamespaces(document);
+        if (Certificate != null)
+        {
+            var signer = new SealSignedXml(document);
+            var signedXml = signer.Sign(Certificate);
+            var xDocument = XDocument.Parse(signedXml.OuterXml, LoadOptions.PreserveWhitespace);
+            return xDocument;
+        }
+        return document;
     }
 
-    protected override void ValidateBeforeBuild()
+    private XDocument CreateDocument()
     {
+        localDoc = new XDocument();
+
+        var root = XmlUtil.CreateElement(SoapTags.Envelope);
+        localDoc.Add(root);
+        AppendToRoot(root);
+
+        var result = localDoc;
+        localDoc = null;
+
+        return result;
+    }
+
+    private void AppendToRoot(XElement root)
+    {
+        // HACK: Needs to write body first, or the assertion validation will fail after signing the message in the header.
+        // hash values for assertion will change if header is not last ?!?
+        AppendBody(root);
+        AppendHeader(root);
+    }
+
+    private void AppendBody(XElement envelope)
+    {
+        var body = XmlUtil.CreateElement(SoapTags.Body);
+        body.Add(new XAttribute(NameSpaces.xwsu + "Id", "body"));
+
+        envelope.Add(body);
+        AddBodyContent(body);
+    }
+
+    private void AppendHeader(XElement envelope)
+    {
+        var header = XmlUtil.CreateElement(SoapTags.Header);
+        envelope.Add(header);
+        AddHeaderContent(header);
+    }
+
+    protected void AddHeaderContent(XElement header)
+    {
+        var action = XmlUtil.CreateElement(WsaTags.Action);
+        action.Add(new XAttribute("mustUnderstand", "1"));
+        action.Add(new XAttribute(NameSpaces.xwsu + "Id", "action"));
+        header.Add(action);
+        action.Value = Action;
+
+        var messageId = XmlUtil.CreateElement(WsaTags.MessageId);
+        messageId.Add(new XAttribute(NameSpaces.xwsu + "Id", "messageID"));
+        header.Add(messageId);
+        messageId.Value = "urn:uuid:" + Guid.NewGuid().ToString("D");
+
+        AddExtraHeaders(header);
+        var security = AddWsSecurityHeader(header);
+        AddWsuTimestamp(security);
+    }
+
+    private static void AddWsuTimestamp(XElement securityHeader)
+    {
+        var timestamp = XmlUtil.CreateElement(WsuTags.Timestamp);
+        timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", "timestamp"));
+        securityHeader.Add(timestamp);
+        var created = XmlUtil.CreateElement(WsuTags.Created);
+        created.Value = DateTimeEx.UtcNowRound.FormatDateTimeXml();
+        timestamp.Add(created);
+    }
+
+    private static XElement AddWsSecurityHeader(XElement header)
+    {
+        var securityHeader = XmlUtil.CreateElement(WsseTags.Security);
+        securityHeader.Add(new XAttribute(WsseAttributes.MustUnderstand, "1"));
+        header.Add(securityHeader);
+        return securityHeader;
+    }
+
+    protected void AddHeader(XElement header)
+    {
+        var action = XmlUtil.CreateElement(WsaTags.Action);
+        action.Add(new XAttribute("mustUnderstand", "1"));
+        action.Add(new XAttribute(NameSpaces.xwsu + "Id", "action"));
+        header.Add(action);
+        action.Value = Action;
+
+        var messageId = XmlUtil.CreateElement(WsaTags.MessageId);
+        messageId.Add(new XAttribute(NameSpaces.xwsu + "Id", "messageID"));
+        header.Add(messageId);
+        messageId.Value = "urn:uuid:" + Guid.NewGuid().ToString("D");
+
+        AddExtraHeaders(header);
+        var security = AddWsSecurityHeader(header);
+        AddWsuTimestamp(security);
     }
 
     public XDocument ToXml() => Build();

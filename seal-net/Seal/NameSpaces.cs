@@ -74,7 +74,7 @@ namespace dk.nsi.seal
             {bpp, "bpp" },
 		};
 
-	    internal static void SetMissingNamespaces(XDocument doc)
+	    public static void SetMissingNamespaces(XDocument doc)
         {
             var docnss = new HashSet<string>(doc.Root.Attributes().Where(a => a.Name.Namespace == XNamespace.Xmlns).Select(a => a.Value));
 

@@ -233,7 +233,7 @@ namespace dk.nsi.seal
             }
         }
 
-        internal static void CheckAndSetSamlDsPreFix(XDocument xdoc)
+        public static void CheckAndSetSamlDsPreFix(XDocument xdoc)
         {
             var signature = xdoc.Descendants(NameSpaces.xsaml + "Assertion").Elements(NameSpaces.xds + "Signature").FirstOrDefault();
             if (signature != null)
