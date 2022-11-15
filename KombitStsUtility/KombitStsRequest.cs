@@ -25,13 +25,6 @@ public class KombitStsRequest
 
     public string Action { get; } = WsTrustConstants.Wst13IssueAction;
 
-    public KombitStsRequest(X509Certificate2 certificate, string audience, string binarySecurityToken)
-    {
-        Audience = audience;
-        BinarySecurityToken = binarySecurityToken;
-        Certificate = certificate;
-    }
-
     private class XmlSigner : SignedXml
     {
         private XmlDocument Xml { get; }
@@ -46,23 +39,21 @@ public class KombitStsRequest
 
             foreach (var s in refnames)
             {
-                var reference = new Reference();
-                reference.Uri = s;
+                var reference = new Reference { Uri = s };
                 reference.AddTransform(new XmlDsigExcC14NTransform());
                 reference.DigestMethod = XmlDsigSHA1Url;
                 AddReference(reference);
             }
-            try { SigningKey = cert.PrivateKey; }
-            catch { SigningKey = cert.GetECDsaPrivateKey(); }
+
+            SigningKey = cert.GetRSAPrivateKey();
             SignedInfo.CanonicalizationMethod = new XmlDsigExcC14NTransform().Algorithm;
             SignedInfo.SignatureMethod = XmlDsigRSASHA1Url;
-            KeyInfo = new KeyInfo();
 
             ComputeSignature();
 
             XmlElement signaelm = GetXml();
-            var xSecurity = Xml.SelectSingleNode("/soap:Envelope/soap:Header/wsse:Security", NameSpaces.MakeNsManager(Xml.NameTable)) as XmlElement;
-            if (xSecurity == null) throw new InvalidOperationException("No Signature element found in /Envolope/Header/Security");
+            if (Xml.SelectSingleNode("/soap:Envelope/soap:Header/wsse:Security", NameSpaces.MakeNsManager(Xml.NameTable)) is not XmlElement xSecurity)
+            { throw new InvalidOperationException("No Signature element found in /Envolope/Header/Security"); }
             xSecurity.AppendChild(xSecurity.OwnerDocument.ImportNode(signaelm, true));
 
             return Xml;
@@ -91,6 +82,13 @@ public class KombitStsRequest
         }
 
         public static XDocument Sign(X509Certificate2 cert, XDocument doc) => XDocument.Parse(new XmlSigner(doc).Sign(cert).OuterXml, LoadOptions.PreserveWhitespace);
+    }
+
+    public KombitStsRequest(X509Certificate2 certificate, string audience, string binarySecurityToken)
+    {
+        Audience = audience;
+        BinarySecurityToken = binarySecurityToken;
+        Certificate = certificate;
     }
 
     private void AddBodyContent(XElement body) => body.Add(RequestSecurityToken(Audience, BinarySecurityToken));
@@ -132,7 +130,7 @@ public class KombitStsRequest
         return doc.Root;
     }
 
-    protected void AddExtraHeaders(XElement header)
+    private void AddExtraHeaders(XElement header)
     {
         WsAddressingTo.IfSome(to => header.Add(new XElement(NameSpaces.xwsa + "To", to)));
         header.Add(new XElement(NameSpaces.xwsa + "ReplyTo", new XElement("Address", "http://www.w3.org/2005/08/addressing/anonymous")));
@@ -215,7 +213,7 @@ public class KombitStsRequest
                                EncodingType,
                                ValueType,
                                binarySecurityToken)
-            );
+                          );
         return securityHeader;
     }
 
