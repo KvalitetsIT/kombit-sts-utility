@@ -4,6 +4,8 @@ using System.Xml.Linq;
 using dk.nsi.seal;
 using dk.nsi.seal.Model;
 using System.Security.Cryptography.X509Certificates;
+using LanguageExt.Pretty;
+using System.Runtime.ConstrainedExecution;
 
 namespace KombitStsUtility;
 
@@ -11,7 +13,7 @@ public class KombitStsRequest
 {
     public Option<string> WsAddressingTo { get; init; }
 
-    public Option<X509Certificate2> Certificate { get; init; }
+    public X509Certificate2 Certificate { get; }
 
     public string Audience { get; }
 
@@ -23,10 +25,11 @@ public class KombitStsRequest
 
     public string Action { get; } = WsTrustConstants.Wst13IssueAction;
 
-    public KombitStsRequest(string audience, string binarySecurityToken)
+    public KombitStsRequest(X509Certificate2 certificate, string audience, string binarySecurityToken)
     {
         Audience = audience;
         BinarySecurityToken = binarySecurityToken;
+        Certificate = certificate;
     }
 
     protected void AddBodyContent(XElement body) => body.Add(RequestSecurityToken(Audience, BinarySecurityToken));
@@ -74,20 +77,12 @@ public class KombitStsRequest
         header.Add(new XElement(NameSpaces.xwsa + "ReplyTo", new XElement("Address", "http://www.w3.org/2005/08/addressing/anonymous")));
     }
 
-    public XDocument Build()
+    private XDocument Build()
     {
         var document = CreateDocument();
         SealUtilities.CheckAndSetSamlDsPreFix(document);
         NameSpaces.SetMissingNamespaces(document);
-
-        return Certificate.Match(c =>
-        {
-            var signer = new SealSignedXml(document);
-            var signedXml = signer.Sign(c);
-            var xDocument = XDocument.Parse(signedXml.OuterXml, LoadOptions.PreserveWhitespace);
-            return xDocument;
-        },
-        () => document);
+        return SealSignedXml.Sign(Certificate, document);
     }
 
     private XDocument CreateDocument()
@@ -102,7 +97,7 @@ public class KombitStsRequest
     private void AppendToRoot(XElement root)
     {
         // HACK: Needs to write body first, or the assertion validation will fail after signing the message in the header.
-        // hash values for assertion will change if header is not last ?!?
+        // hash values for assertion will change if header is not last?
         AppendBody(root);
         AppendHeader(root);
     }
@@ -126,7 +121,7 @@ public class KombitStsRequest
     protected void AddHeaderContent(XElement header)
     {
         var action = XmlUtil.CreateElement(WsaTags.Action);
-        action.Add(new XAttribute("mustUnderstand", "1"), 
+        action.Add(new XAttribute("mustUnderstand", "1"),
                    new XAttribute(NameSpaces.xwsu + "Id", "action"));
         header.Add(action);
         action.Value = Action;
@@ -149,17 +144,17 @@ public class KombitStsRequest
         var now = DateTime.UtcNow;
         var created = XmlUtil.CreateElement(WsuTags.Created, now.FormatDateTimeXml());
         var expires = XmlUtil.CreateElement(WsuTags.Expires, now.AddMinutes(5).FormatDateTimeXml());
-        timestamp.Add(created, expires);
+        timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", "timestamp"), created, expires);
     }
 
     private static XElement AddWsSecurityHeader(string binarySecurityToken)
     {
         var securityHeader = XmlUtil.CreateElement(WsseTags.Security);
         securityHeader.Add(new XElement(NameSpaces.xwsse + "BinarySecurityToken",
-                            EncodingType,
-                            ValueType,
-                            binarySecurityToken
-        ));
+                               EncodingType,
+                               ValueType,
+                               binarySecurityToken)
+            );
         return securityHeader;
     }
 

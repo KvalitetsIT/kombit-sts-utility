@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using dk.nsi.seal.Model.ModelBuilders;
@@ -127,10 +128,13 @@ namespace dk.nsi.seal
             return cert;
         }
 
+        public static XDocument Sign(X509Certificate2 cert, XDocument doc) => XDocument.Parse(new SealSignedXml(doc).Sign(cert).OuterXml, LoadOptions.PreserveWhitespace);
+
         public XmlDocument Sign(X509Certificate2 cert)
         {
             var refnames = new [] { "#messageID", "#action", "#timestamp", "#body" };
-			foreach (var s in refnames)
+
+            foreach (var s in refnames)
             {
                 var reference = new Reference();
                 reference.Uri = s;
@@ -138,8 +142,8 @@ namespace dk.nsi.seal
 				reference.DigestMethod = XmlDsigSHA1Url;
 				AddReference(reference);
             }
-
-            SigningKey = cert.PrivateKey;
+            try { SigningKey = cert.PrivateKey; }
+            catch { SigningKey = cert.GetECDsaPrivateKey(); }
             SignedInfo.CanonicalizationMethod = new XmlDsigExcC14NTransform().Algorithm;
 			SignedInfo.SignatureMethod = XmlDsigRSASHA1Url;
 			KeyInfo = new KeyInfo();

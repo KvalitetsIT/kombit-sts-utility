@@ -5,7 +5,6 @@ namespace dk.nsi.seal.Model
 {
 	public static class XmlUtil
 	{
-		public static XElement CreateElement(ITag tag) => new XElement(tag.Ns + tag.TagName);
-        public static XElement CreateElement(ITag tag, object value) => new XElement(tag.Ns + tag.TagName, value);
+        public static XElement CreateElement(ITag tag, params object[] value) => new XElement(tag.Ns + tag.TagName, value);
     }
 }
