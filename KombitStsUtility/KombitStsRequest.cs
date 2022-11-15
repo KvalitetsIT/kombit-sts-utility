@@ -1,5 +1,5 @@
 ﻿using dk.nsi.seal.Model.Constants;
-using dk.nsi.seal.Model.DomBuilders;
+using LanguageExt;
 using System.Xml.Linq;
 using dk.nsi.seal;
 using dk.nsi.seal.Model;
@@ -9,21 +9,19 @@ namespace KombitStsUtility;
 
 public class KombitStsRequest
 {
-    public string WsAddressingTo { get; init; } = "";
+    public Option<string> WsAddressingTo { get; init; }
+
+    public Option<X509Certificate2> Certificate { get; init; }
 
     public string Audience { get; }
 
     public string BinarySecurityToken { get; }
-
-    public X509Certificate2 Certificate { get; init; } = null; // TODO
 
     private readonly static XAttribute ValueType = new("ValueType", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
 
     private readonly static XAttribute EncodingType = new("EncodingType", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
 
     public string Action { get; } = WsTrustConstants.Wst13IssueAction;
-
-    private XDocument localDoc;
 
     public KombitStsRequest(string audience, string binarySecurityToken)
     {
@@ -72,7 +70,7 @@ public class KombitStsRequest
 
     protected void AddExtraHeaders(XElement header)
     {
-        header.Add(new XElement(NameSpaces.xwsa + "To", WsAddressingTo));
+        WsAddressingTo.IfSome(to => header.Add(new XElement(NameSpaces.xwsa + "To", to)));
         header.Add(new XElement(NameSpaces.xwsa + "ReplyTo", new XElement("Address", "http://www.w3.org/2005/08/addressing/anonymous")));
     }
 
@@ -81,28 +79,24 @@ public class KombitStsRequest
         var document = CreateDocument();
         SealUtilities.CheckAndSetSamlDsPreFix(document);
         NameSpaces.SetMissingNamespaces(document);
-        if (Certificate != null)
+
+        return Certificate.Match(c =>
         {
             var signer = new SealSignedXml(document);
-            var signedXml = signer.Sign(Certificate);
+            var signedXml = signer.Sign(c);
             var xDocument = XDocument.Parse(signedXml.OuterXml, LoadOptions.PreserveWhitespace);
             return xDocument;
-        }
-        return document;
+        },
+        () => document);
     }
 
     private XDocument CreateDocument()
     {
-        localDoc = new XDocument();
-
+        var doc = new XDocument();
         var root = XmlUtil.CreateElement(SoapTags.Envelope);
-        localDoc.Add(root);
+        doc.Add(root);
         AppendToRoot(root);
-
-        var result = localDoc;
-        localDoc = null;
-
-        return result;
+        return doc;
     }
 
     private void AppendToRoot(XElement root)
@@ -132,8 +126,8 @@ public class KombitStsRequest
     protected void AddHeaderContent(XElement header)
     {
         var action = XmlUtil.CreateElement(WsaTags.Action);
-        action.Add(new XAttribute("mustUnderstand", "1"));
-        action.Add(new XAttribute(NameSpaces.xwsu + "Id", "action"));
+        action.Add(new XAttribute("mustUnderstand", "1"), 
+                   new XAttribute(NameSpaces.xwsu + "Id", "action"));
         header.Add(action);
         action.Value = Action;
 
@@ -143,33 +137,37 @@ public class KombitStsRequest
         messageId.Value = "urn:uuid:" + Guid.NewGuid().ToString("D");
 
         AddExtraHeaders(header);
-        var security = AddWsSecurityHeader(header);
+        var security = AddWsSecurityHeader(BinarySecurityToken);
+        header.Add(security);
         AddWsuTimestamp(security);
     }
 
     private static void AddWsuTimestamp(XElement securityHeader)
     {
         var timestamp = XmlUtil.CreateElement(WsuTags.Timestamp);
-        timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", "timestamp"));
         securityHeader.Add(timestamp);
-        var created = XmlUtil.CreateElement(WsuTags.Created);
-        created.Value = DateTimeEx.UtcNowRound.FormatDateTimeXml();
-        timestamp.Add(created);
+        var now = DateTime.UtcNow;
+        var created = XmlUtil.CreateElement(WsuTags.Created, now.FormatDateTimeXml());
+        var expires = XmlUtil.CreateElement(WsuTags.Expires, now.AddMinutes(5).FormatDateTimeXml());
+        timestamp.Add(created, expires);
     }
 
-    private static XElement AddWsSecurityHeader(XElement header)
+    private static XElement AddWsSecurityHeader(string binarySecurityToken)
     {
         var securityHeader = XmlUtil.CreateElement(WsseTags.Security);
-        securityHeader.Add(new XAttribute(WsseAttributes.MustUnderstand, "1"));
-        header.Add(securityHeader);
+        securityHeader.Add(new XElement(NameSpaces.xwsse + "BinarySecurityToken",
+                            EncodingType,
+                            ValueType,
+                            binarySecurityToken
+        ));
         return securityHeader;
     }
 
     protected void AddHeader(XElement header)
     {
         var action = XmlUtil.CreateElement(WsaTags.Action);
-        action.Add(new XAttribute("mustUnderstand", "1"));
-        action.Add(new XAttribute(NameSpaces.xwsu + "Id", "action"));
+        action.Add(new XAttribute("mustUnderstand", "1"),
+                   new XAttribute(NameSpaces.xwsu + "Id", "action"));
         header.Add(action);
         action.Value = Action;
 
@@ -179,7 +177,7 @@ public class KombitStsRequest
         messageId.Value = "urn:uuid:" + Guid.NewGuid().ToString("D");
 
         AddExtraHeaders(header);
-        var security = AddWsSecurityHeader(header);
+        var security = AddWsSecurityHeader(BinarySecurityToken);
         AddWsuTimestamp(security);
     }
 
