@@ -4,8 +4,8 @@ using System.Xml.Linq;
 using dk.nsi.seal;
 using dk.nsi.seal.Model;
 using System.Security.Cryptography.X509Certificates;
-using LanguageExt.Pretty;
-using System.Runtime.ConstrainedExecution;
+using System.Security.Cryptography.Xml;
+using System.Xml;
 
 namespace KombitStsUtility;
 
@@ -32,7 +32,68 @@ public class KombitStsRequest
         Certificate = certificate;
     }
 
-    protected void AddBodyContent(XElement body) => body.Add(RequestSecurityToken(Audience, BinarySecurityToken));
+    private class XmlSigner : SignedXml
+    {
+        private XmlDocument Xml { get; }
+
+        private XmlSigner(XDocument xml) : this(StreamToXml(XDocToStream(xml))) { }
+
+        private XmlSigner(XmlDocument xml) : base(xml) => Xml = xml;
+
+        private XmlDocument Sign(X509Certificate2 cert)
+        {
+            var refnames = new[] { "#messageID", "#action", "#timestamp", "#body" };
+
+            foreach (var s in refnames)
+            {
+                var reference = new Reference();
+                reference.Uri = s;
+                reference.AddTransform(new XmlDsigExcC14NTransform());
+                reference.DigestMethod = XmlDsigSHA1Url;
+                AddReference(reference);
+            }
+            try { SigningKey = cert.PrivateKey; }
+            catch { SigningKey = cert.GetECDsaPrivateKey(); }
+            SignedInfo.CanonicalizationMethod = new XmlDsigExcC14NTransform().Algorithm;
+            SignedInfo.SignatureMethod = XmlDsigRSASHA1Url;
+            KeyInfo = new KeyInfo();
+
+            ComputeSignature();
+
+            XmlElement signaelm = GetXml();
+            var xSecurity = Xml.SelectSingleNode("/soap:Envelope/soap:Header/wsse:Security", NameSpaces.MakeNsManager(Xml.NameTable)) as XmlElement;
+            if (xSecurity == null) throw new InvalidOperationException("No Signature element found in /Envolope/Header/Security");
+            xSecurity.AppendChild(xSecurity.OwnerDocument.ImportNode(signaelm, true));
+
+            return Xml;
+        }
+
+        public override XmlElement GetIdElement(XmlDocument doc, string id)
+        {
+            var idElem = doc.SelectSingleNode("//*[@wsu:Id=\"" + id + "\"]", NameSpaces.MakeNsManager(doc.NameTable)) as XmlElement;
+            var tid = idElem ?? base.GetIdElement(doc, id);
+            return tid;
+        }
+
+        private static XmlDocument StreamToXml(Stream stream)
+        {
+            var doc = new XmlDocument { PreserveWhitespace = true };
+            doc.Load(stream);
+            return doc;
+        }
+
+        private static Stream XDocToStream(XDocument xml)
+        {
+            var ms = new MemoryStream();
+            xml.Save(ms, SaveOptions.DisableFormatting);
+            ms.Position = 0;
+            return ms;
+        }
+
+        public static XDocument Sign(X509Certificate2 cert, XDocument doc) => XDocument.Parse(new XmlSigner(doc).Sign(cert).OuterXml, LoadOptions.PreserveWhitespace);
+    }
+
+    private void AddBodyContent(XElement body) => body.Add(RequestSecurityToken(Audience, BinarySecurityToken));
 
 
     private static XElement RequestSecurityToken(string audience, string binarySecurityToken) => new(NameSpaces.xtrust + "RequestSecurityToken",
@@ -82,7 +143,7 @@ public class KombitStsRequest
         var document = CreateDocument();
         SealUtilities.CheckAndSetSamlDsPreFix(document);
         NameSpaces.SetMissingNamespaces(document);
-        return SealSignedXml.Sign(Certificate, document);
+        return XmlSigner.Sign(Certificate, document);
     }
 
     private XDocument CreateDocument()

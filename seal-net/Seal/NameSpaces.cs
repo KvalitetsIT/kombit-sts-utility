@@ -88,7 +88,7 @@ namespace dk.nsi.seal
             }
         }
 
-        internal static XmlNamespaceManager MakeNsManager(XmlNameTable nt)
+        public static XmlNamespaceManager MakeNsManager(XmlNameTable nt)
         {
             var mng = new XmlNamespaceManager(nt);
             foreach (var kv in alias)

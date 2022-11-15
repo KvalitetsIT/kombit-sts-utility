@@ -15,6 +15,8 @@ namespace SealTest.AssertionTests
 {
     public class Sosi2SamlTest
     {
+        
+
         private static X509Certificate2 UserCert => new CertificateOces2MocesCpr().Certificate;
 
         public static UserIdCard IdCard
