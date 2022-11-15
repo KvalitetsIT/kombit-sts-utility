@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace dk.nsi.seal
 {
-    internal class NameSpaces
+    public class NameSpaces
     {
         public const string wsa = "http://www.w3.org/2005/08/addressing",
             wsa04 = "http://schemas.xmlsoap.org/ws/2004/08/addressing",
