@@ -39,7 +39,9 @@ public static class XmlExt
 public class KombitStsRequest
 {
     public Uri WsAddressingTo { get; }
+
     public string MunicipalityCvr { get; }
+
     public X509Certificate2 Certificate { get; }
 
     public string Endpoint { get; }
@@ -69,7 +71,7 @@ public class KombitStsRequest
 
         private XmlSigner(XmlDocument xml) : base(xml) => Xml = xml;
 
-        private XmlDocument Sign(X509Certificate2 cert)
+        private XDocument Sign(X509Certificate2 cert)
         {
             List("#messageID", "#action", "#timestamp", "#body", "#to", "#replyTo", $"#{binarySecurityToken}")
             .Iter(s =>
@@ -96,7 +98,7 @@ public class KombitStsRequest
             { throw new InvalidOperationException($"No Signature element found in {securityPath}"); }
             xSecurity.AppendChild(xSecurity.OwnerDocument.ImportNode(signaelm, true));
 
-            return Xml;
+            return Xml.ToXDocument();
         }
 
         public override XmlElement GetIdElement(XmlDocument doc, string id)
@@ -106,7 +108,7 @@ public class KombitStsRequest
             return tid;
         }
 
-        public static XDocument Sign(X509Certificate2 cert, XDocument doc) => XDocument.Parse(new XmlSigner(doc).Sign(cert).OuterXml, LoadOptions.PreserveWhitespace);
+        public static XDocument Sign(X509Certificate2 cert, XDocument doc) => new XmlSigner(doc).Sign(cert);
     }
 
     public KombitStsRequest(int municipalityCvr, X509Certificate2 certificate, string endpoint, Uri wsAddressingTo) 
@@ -120,8 +122,21 @@ public class KombitStsRequest
         Certificate = certificate;
     }
 
+    private XDocument Build()
+    {
+        var document = Envelope();
+        NameSpaces.SetMissingNamespaces(document);
+        return XmlSigner.Sign(Certificate, document);
+    }
 
-    private static XElement RequestSecurityToken(string endpoint, string municipalityCvr, X509Certificate2 certificate) => 
+    // Needs to write body first, or the assertion validation will fail after signing the message in the header.
+    // hash values for assertion will change if header is not last?
+    private XDocument Envelope() => new(new XElement(NameSpaces.xsoap + "Envelope", Body(), Header()));
+
+    private XElement Body() => new(NameSpaces.xsoap + "Body", new XAttribute(NameSpaces.xwsu + "Id", "body"),
+                                    RequestSecurityToken(Endpoint, MunicipalityCvr, Certificate));
+
+    private static XElement RequestSecurityToken(string endpoint, string municipalityCvr, X509Certificate2 certificate) =>
         new(NameSpaces.xtrust + "RequestSecurityToken",
             new XElement(NameSpaces.xtrust + "TokenType", WsseValues.SamlTokenType),
             new XElement(NameSpaces.xtrust + "RequestType", WsTrustConstants.Wst13IssueRequestType),
@@ -135,38 +150,17 @@ public class KombitStsRequest
                     Convert.ToBase64String(certificate.Export(X509ContentType.Cert
         )))));
 
-    private static XElement Claims(string municipalityCvr) => 
-        new(NameSpaces.xtrust + "Claims", new XAttribute("Dialect", WsfAuthValues.ClaimsDialect),
-            new XElement(NameSpaces.xwsfAuth + "ClaimType", new XAttribute("Uri", "dk:gov:saml:attribute:CvrNumberIdentifier"),
-                new XElement(NameSpaces.xwsfAuth + "Value", municipalityCvr
-        )));
-
-    private static XElement EndpointElement(string endpoint) => 
+    private static XElement EndpointElement(string endpoint) =>
                         XmlUtil.CreateElement(WspTags.AppliesTo,
                             XmlUtil.CreateElement(WsaTags.EndpointReference,
                                 XmlUtil.CreateElement(WsaTags.Address, endpoint
                         )));
 
-    private XDocument Build()
-    {
-        var document = Envelope();
-        SealUtilities.CheckAndSetSamlDsPreFix(document);
-        NameSpaces.SetMissingNamespaces(document);
-        return XmlSigner.Sign(Certificate, document);
-    }
-
-    private XDocument Envelope()
-    {
-        var root = new XElement(NameSpaces.xsoap + "Envelope");
-        // Needs to write body first, or the assertion validation will fail after signing the message in the header.
-        // hash values for assertion will change if header is not last?
-        root.Add(Body());
-        root.Add(Header());
-        return new XDocument(root);
-    }
-
-    private XElement Body() => new(NameSpaces.xsoap + "Body", new XAttribute(NameSpaces.xwsu + "Id", "body"),
-                               RequestSecurityToken(Endpoint, MunicipalityCvr, Certificate));
+    private static XElement Claims(string municipalityCvr) =>
+        new(NameSpaces.xtrust + "Claims", new XAttribute("Dialect", WsfAuthValues.ClaimsDialect),
+            new XElement(NameSpaces.xwsfAuth + "ClaimType", new XAttribute("Uri", "dk:gov:saml:attribute:CvrNumberIdentifier"),
+                new XElement(NameSpaces.xwsfAuth + "Value", municipalityCvr
+        )));
 
     private XElement Header()
     {
@@ -190,16 +184,6 @@ public class KombitStsRequest
         return header;
     }
 
-    private static void AddWsuTimestamp(XElement securityHeader)
-    {
-        var timestamp = XmlUtil.CreateElement(WsuTags.Timestamp);
-        securityHeader.Add(timestamp);
-        var now = DateTime.UtcNow;
-        var created = XmlUtil.CreateElement(WsuTags.Created, now.FormatDateTimeXml());
-        var expires = XmlUtil.CreateElement(WsuTags.Expires, now.AddMinutes(5).FormatDateTimeXml());
-        timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", "timestamp"), created, expires);
-    }
-
     private static XElement AddWsSecurityHeader(X509Certificate2 certificate) => 
         XmlUtil.CreateElement(WsseTags.Security,
             new XAttribute(NameSpaces.xsoap + "mustUnderstand", "1"),
@@ -210,7 +194,17 @@ public class KombitStsRequest
                                Convert.ToBase64String(certificate.Export(X509ContentType.Cert
                                    ))));
 
-    public XDocument ToXml() => Build();
+    private static void AddWsuTimestamp(XElement securityHeader)
+    {
+        var timestamp = XmlUtil.CreateElement(WsuTags.Timestamp);
+        securityHeader.Add(timestamp);
+        var now = DateTime.UtcNow;
+        var created = XmlUtil.CreateElement(WsuTags.Created, now.FormatDateTimeXml());
+        var expires = XmlUtil.CreateElement(WsuTags.Expires, now.AddMinutes(5).FormatDateTimeXml());
+        timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", "timestamp"), created, expires);
+    }
 
     public override string ToString() => ToXml().ToString();
+
+    public XDocument ToXml() => Build();
 }
