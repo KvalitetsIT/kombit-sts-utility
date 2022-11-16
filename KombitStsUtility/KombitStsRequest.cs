@@ -6,7 +6,7 @@ using dk.nsi.seal.Model;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
-using System.Collections.Immutable;
+using static LanguageExt.Prelude;
 
 namespace KombitStsUtility;
 
@@ -34,15 +34,14 @@ public class KombitStsRequest
 
         private XmlDocument Sign(X509Certificate2 cert)
         {
-            var refnames = new[] { "#messageID", "#action", "#timestamp", "#body" };
-
-            foreach (var s in refnames)
+            List("#messageID", "#action", "#timestamp", "#body", "#to", "#replyTo", "#binarySecurityToken")
+            .Iter(s =>
             {
                 var reference = new Reference { Uri = s };
                 reference.AddTransform(new XmlDsigExcC14NTransform());
                 reference.DigestMethod = XmlDsigSHA1Url;
                 AddReference(reference);
-            }
+            });
 
             SigningKey = cert.GetRSAPrivateKey();
             SignedInfo.CanonicalizationMethod = new XmlDsigExcC14NTransform().Algorithm;
@@ -128,12 +127,6 @@ public class KombitStsRequest
         return doc.Root;
     }
 
-    private void AddExtraHeaders(XElement header)
-    {
-        WsAddressingTo.IfSome(to => header.Add(new XElement(NameSpaces.xwsa + "To", to)));
-        header.Add(new XElement(NameSpaces.xwsa + "ReplyTo", new XElement("Address", "http://www.w3.org/2005/08/addressing/anonymous")));
-    }
-
     private XDocument Build()
     {
         var document = Envelope();
@@ -163,12 +156,6 @@ public class KombitStsRequest
     private XElement Header()
     {
         var header = new XElement(NameSpaces.xsoap + "Header");
-        AddHeaderContent(header);
-        return header;
-    }
-
-    private void AddHeaderContent(XElement header)
-    {
         var action = XmlUtil.CreateElement(WsaTags.Action);
         action.Add(new XAttribute(NameSpaces.xwsu + "Id", "action"));
         header.Add(action);
@@ -179,10 +166,13 @@ public class KombitStsRequest
         header.Add(messageId);
         messageId.Value = "urn:uuid:" + Guid.NewGuid().ToString("D");
 
-        AddExtraHeaders(header);
+        WsAddressingTo.IfSome(to => header.Add(new XElement(NameSpaces.xwsa + "To", to, new XAttribute(NameSpaces.xwsu + "Id", "to"))));
+        header.Add(new XElement(NameSpaces.xwsa + "ReplyTo", new XAttribute(NameSpaces.xwsu + "Id", "replyTo"), new XElement("Address", "http://www.w3.org/2005/08/addressing/anonymous")));
+
         var security = AddWsSecurityHeader(Certificate);
         header.Add(security);
         AddWsuTimestamp(security);
+        return header;
     }
 
     private static void AddWsuTimestamp(XElement securityHeader)
@@ -199,6 +189,7 @@ public class KombitStsRequest
         XmlUtil.CreateElement(WsseTags.Security,
             new XAttribute(NameSpaces.xsoap + "mustUnderstand", "1"),
             new XElement(NameSpaces.xwsse + "BinarySecurityToken",
+                               new XAttribute(NameSpaces.xwsu + "Id", "binarySecurityToken"),
                                EncodingType,
                                ValueType,
                                Convert.ToBase64String(certificate.Export(X509ContentType.Cert))));
