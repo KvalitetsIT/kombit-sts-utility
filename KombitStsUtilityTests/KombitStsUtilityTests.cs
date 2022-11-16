@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 using System;
+using dk.nsi.seal;
 
 namespace KombitStsUtilityTests;
 
@@ -25,6 +26,6 @@ public class KombitStsUtilityTests
         await File.WriteAllTextAsync("GeneratedRequest.xml", request);
         var expected = await File.ReadAllTextAsync("Request.xml");
         request.ShouldBe(expected);
-        // TODO Validate with dk.nsi.seal.Model.OioWsTrustMessage or/and dk.nsi.seal.SealUtilities and/or dk.nsi.seal.SealSignedXml and/or dk.nsi.seal.Model.SignatureUtil
+        // TODO Validate - use dk.nsi.seal.Model.OioWsTrustMessage and/or dk.nsi.seal.SealUtilities and/or dk.nsi.seal.SealSignedXml and/or dk.nsi.seal.Model.SignatureUtil as inspiration
     }
 }

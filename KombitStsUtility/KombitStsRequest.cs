@@ -12,6 +12,14 @@ namespace KombitStsUtility;
 
 public static class XmlExt
 {
+    public static XmlElement ToXmlElement(this XElement element)
+    {
+        var xmlDocument = new XmlDocument();
+        using var xmlReader = element.CreateReader();
+        xmlDocument.Load(xmlReader);
+        return xmlDocument.DocumentElement!;
+    }
+
     public static XmlDocument ToXmlDocument(this XDocument xDocument)
     {
         var xmlDocument = new XmlDocument();
@@ -48,12 +56,10 @@ public class KombitStsRequest
     {
         private class SecurityTokenReference : KeyInfoClause
         {
-            public override XmlElement GetXml() => new XDocument(
-                                                        new XElement(NameSpaces.xwsse + "SecurityTokenReference",
+            public override XmlElement GetXml() => new XElement(NameSpaces.xwsse + "SecurityTokenReference",
                                                                      new XAttribute("URI", $"#{binarySecurityToken}"),
-                                                                     ValueType))
-                                                                .ToXmlDocument()
-                                                                .DocumentElement!;
+                                                                     ValueType)
+                                                                .ToXmlElement();
 
             public override void LoadXml(XmlElement element) => throw new NotImplementedException();
         }
