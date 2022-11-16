@@ -7,9 +7,26 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
 using static LanguageExt.Prelude;
-using Microsoft.IdentityModel.Protocols.WsSecurity;
 
 namespace KombitStsUtility;
+
+public static class XmlExt
+{
+    public static XmlDocument ToXmlDocument(this XDocument xDocument)
+    {
+        var xmlDocument = new XmlDocument();
+        using var xmlReader = xDocument.CreateReader();      
+        xmlDocument.Load(xmlReader);
+        return xmlDocument;
+    }
+
+    public static XDocument ToXDocument(this XmlDocument xmlDocument)
+    {
+        using var nodeReader = new XmlNodeReader(xmlDocument);
+        nodeReader.MoveToContent();
+        return XDocument.Load(nodeReader);
+    }
+}
 
 public class KombitStsRequest
 {
@@ -25,11 +42,24 @@ public class KombitStsRequest
 
     public string Action { get; } = WsTrustConstants.Wst13IssueAction;
 
+    private class SecurityTokenReference : KeyInfoClause
+    {
+        public override XmlElement GetXml()
+        {
+            return new XElement("", "").Document.ToXmlDocument().DocumentElement;
+        }
+
+        public override void LoadXml(XmlElement element)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     private class XmlSigner : SignedXml
     {
         private XmlDocument Xml { get; }
 
-        private XmlSigner(XDocument xml) : this(StreamToXml(XDocToStream(xml))) { }
+        private XmlSigner(XDocument xml) : this(xml.ToXmlDocument()) { }
 
         private XmlSigner(XmlDocument xml) : base(xml) => Xml = xml;
 
@@ -47,7 +77,9 @@ public class KombitStsRequest
             SigningKey = cert.GetRSAPrivateKey();
             SignedInfo.CanonicalizationMethod = new XmlDsigExcC14NTransform().Algorithm;
             SignedInfo.SignatureMethod = XmlDsigRSASHA1Url;
-            KeyInfo = new KeyInfo();
+            var ki = new KeyInfo();
+            //ki.AddClause(new SecurityTokenReference());
+            KeyInfo = ki;
 
             ComputeSignature();
 
@@ -68,21 +100,6 @@ public class KombitStsRequest
             return tid;
         }
 
-        private static XmlDocument StreamToXml(Stream stream)
-        {
-            var doc = new XmlDocument { PreserveWhitespace = true };
-            doc.Load(stream);
-            return doc;
-        }
-
-        private static Stream XDocToStream(XDocument xml)
-        {
-            var ms = new MemoryStream();
-            xml.Save(ms, SaveOptions.DisableFormatting);
-            ms.Position = 0;
-            return ms;
-        }
-
         public static XDocument Sign(X509Certificate2 cert, XDocument doc) => XDocument.Parse(new XmlSigner(doc).Sign(cert).OuterXml, LoadOptions.PreserveWhitespace);
     }
 
@@ -92,7 +109,7 @@ public class KombitStsRequest
         Certificate = certificate;
     }
 
-    
+
     private static XElement RequestSecurityToken(string audience, X509Certificate2 certificate) => new(NameSpaces.xtrust + "RequestSecurityToken",
             new XElement(NameSpaces.xtrust + "TokenType", WsseValues.SamlTokenType),
             new XElement(NameSpaces.xtrust + "RequestType", WsTrustConstants.Wst13IssueRequestType),
