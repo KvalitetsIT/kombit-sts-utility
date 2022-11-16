@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
 using static LanguageExt.Prelude;
+using Microsoft.IdentityModel.Protocols.WsSecurity;
 
 namespace KombitStsUtility;
 
@@ -46,6 +47,7 @@ public class KombitStsRequest
             SigningKey = cert.GetRSAPrivateKey();
             SignedInfo.CanonicalizationMethod = new XmlDsigExcC14NTransform().Algorithm;
             SignedInfo.SignatureMethod = XmlDsigRSASHA1Url;
+            KeyInfo = new KeyInfo();
 
             ComputeSignature();
 
