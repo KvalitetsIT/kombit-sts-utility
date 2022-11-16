@@ -19,11 +19,10 @@ public class KombitStsUtilityTests
     [Fact]
     public async Task RequestShouldBeCorrect()
     {
-        var request = new KombitStsRequest(audience: "http://organisation.serviceplatformen.dk/service/organisation/5",
-                                           certificate: SelfSignedCert)
-        {
-            WsAddressingTo = "https://echo:8443/runtime/services/kombittrust/14/certificatemixed",
-        }
+        var request = new KombitStsRequest(endpoint: "http://organisation.serviceplatformen.dk/service/organisation/5",
+                                           certificate: SelfSignedCert,
+                                           wsAddressingTo: new Uri("https://echo:8443/runtime/services/kombittrust/14/certificatemixed"),
+                                           municipalityCvr: 38163264)
         .ToString();
         await File.WriteAllTextAsync("GeneratedRequest.xml", request);
         var expected = await File.ReadAllTextAsync("Request.xml");

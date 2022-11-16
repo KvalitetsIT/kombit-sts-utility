@@ -30,11 +30,11 @@ public static class XmlExt
 
 public class KombitStsRequest
 {
-    public Option<string> WsAddressingTo { get; init; }
-
+    public Uri WsAddressingTo { get; }
+    public string MunicipalityCvr { get; }
     public X509Certificate2 Certificate { get; }
 
-    public string Audience { get; }
+    public string Endpoint { get; }
 
     private readonly static XAttribute ValueType = new("ValueType", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
 
@@ -104,48 +104,42 @@ public class KombitStsRequest
         public static XDocument Sign(X509Certificate2 cert, XDocument doc) => XDocument.Parse(new XmlSigner(doc).Sign(cert).OuterXml, LoadOptions.PreserveWhitespace);
     }
 
-    public KombitStsRequest(X509Certificate2 certificate, string audience)
+    public KombitStsRequest(int municipalityCvr, X509Certificate2 certificate, string endpoint, Uri wsAddressingTo) 
+        : this(municipalityCvr.ToString(), certificate, endpoint, wsAddressingTo) { }
+
+    public KombitStsRequest(string municipalityCvr, X509Certificate2 certificate, string endpoint, Uri wsAddressingTo)
     {
-        Audience = audience;
+        Endpoint = endpoint;
+        WsAddressingTo = wsAddressingTo;
+        MunicipalityCvr = municipalityCvr;
         Certificate = certificate;
     }
 
 
-    private static XElement RequestSecurityToken(string audience, X509Certificate2 certificate) => 
+    private static XElement RequestSecurityToken(string endpoint, string municipalityCvr, X509Certificate2 certificate) => 
         new(NameSpaces.xtrust + "RequestSecurityToken",
             new XElement(NameSpaces.xtrust + "TokenType", WsseValues.SamlTokenType),
             new XElement(NameSpaces.xtrust + "RequestType", WsTrustConstants.Wst13IssueRequestType),
-            AudienceElement(audience),
-            Claims(),
+            EndpointElement(endpoint),
+            Claims(municipalityCvr),
             new XElement(NameSpaces.xtrust + "KeyType", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey"),
             new XElement(NameSpaces.xtrust + "UseKey",
                 new XElement(NameSpaces.xwsse + "BinarySecurityToken",
                     EncodingType,
                     ValueType,
-                    Convert.ToBase64String(certificate.Export(X509ContentType.Cert))
-            )));
+                    Convert.ToBase64String(certificate.Export(X509ContentType.Cert
+            )))));
 
-    private static XElement Claims() => 
+    private static XElement Claims(string municipalityCvr) => 
         new(NameSpaces.xtrust + "Claims", new XAttribute("Dialect", WsfAuthValues.ClaimsDialect),
             new XElement(NameSpaces.xwsfAuth + "ClaimType", new XAttribute("Uri", "dk:gov:saml:attribute:CvrNumberIdentifier"),
-                new XElement(NameSpaces.xwsfAuth + "Value", 38163264))
-            );
+                new XElement(NameSpaces.xwsfAuth + "Value", municipalityCvr)));
 
-    private static XElement AudienceElement(string audience)
-    {
-        var doc = new XDocument();
-        var appliesTo = XmlUtil.CreateElement(WspTags.AppliesTo);
-        doc.Add(appliesTo);
-
-        var endpointReference = XmlUtil.CreateElement(WsaTags.EndpointReference);
-        appliesTo.Add(endpointReference);
-
-        var address = XmlUtil.CreateElement(WsaTags.Address);
-        endpointReference.Add(address);
-        address.Value = audience;
-
-        return doc.Root!;
-    }
+    private static XElement EndpointElement(string endpoint) => 
+                        XmlUtil.CreateElement(WspTags.AppliesTo,
+                            XmlUtil.CreateElement(WsaTags.EndpointReference,
+                                XmlUtil.CreateElement(WsaTags.Address, endpoint
+                   )));
 
     private XDocument Build()
     {
@@ -158,20 +152,15 @@ public class KombitStsRequest
     private XDocument Envelope()
     {
         var root = new XElement(NameSpaces.xsoap + "Envelope");
-        AppendToRoot(root);
-        return new XDocument(root);
-    }
-
-    private void AppendToRoot(XElement root)
-    {
-        // HACK: Needs to write body first, or the assertion validation will fail after signing the message in the header.
+        // Needs to write body first, or the assertion validation will fail after signing the message in the header.
         // hash values for assertion will change if header is not last?
         root.Add(Body());
         root.Add(Header());
+        return new XDocument(root);
     }
 
     private XElement Body() => new(NameSpaces.xsoap + "Body", new XAttribute(NameSpaces.xwsu + "Id", "body"),
-                               RequestSecurityToken(Audience, Certificate));
+                               RequestSecurityToken(Endpoint, MunicipalityCvr, Certificate));
 
     private XElement Header()
     {
@@ -186,7 +175,7 @@ public class KombitStsRequest
         header.Add(messageId);
         messageId.Value = "urn:uuid:" + Guid.NewGuid().ToString("D");
 
-        WsAddressingTo.IfSome(to => header.Add(new XElement(NameSpaces.xwsa + "To", to, new XAttribute(NameSpaces.xwsu + "Id", "to"))));
+        header.Add(new XElement(NameSpaces.xwsa + "To", WsAddressingTo, new XAttribute(NameSpaces.xwsu + "Id", "to")));
         header.Add(new XElement(NameSpaces.xwsa + "ReplyTo", new XAttribute(NameSpaces.xwsu + "Id", "replyTo"), new XElement("Address", "http://www.w3.org/2005/08/addressing/anonymous")));
 
         var security = AddWsSecurityHeader(Certificate);
@@ -212,7 +201,8 @@ public class KombitStsRequest
                                new XAttribute(NameSpaces.xwsu + "Id", binarySecurityToken),
                                EncodingType,
                                ValueType,
-                               Convert.ToBase64String(certificate.Export(X509ContentType.Cert))));
+                               Convert.ToBase64String(certificate.Export(X509ContentType.Cert
+                                   ))));
 
     public XDocument ToXml() => Build();
 
