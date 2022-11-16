@@ -49,7 +49,7 @@ public class KombitStsRequest
 
     private readonly static XAttribute EncodingType = new("EncodingType", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
 
-    private readonly static string binarySecurityToken = "binarySecurityToken";
+    private const string binarySecurityToken = "binarySecurityToken";
 
     public string Action { get; } = WsTrustConstants.Wst13IssueAction;
 
@@ -129,7 +129,7 @@ public class KombitStsRequest
     }
 
     // Needs to write body first, or the assertion validation will fail after signing the message in the header.
-    // hash values for assertion will change if header is not last?
+    // Hash values for assertion will change if header is not last?
     private XDocument Envelope() => new(new XElement(NameSpaces.xsoap + "Envelope", Body(), Header()));
 
     private XElement Body() => new(NameSpaces.xsoap + "Body", new XAttribute(NameSpaces.xwsu + "Id", "body"),
