@@ -1,10 +1,7 @@
 using Xunit;
 using KombitStsUtility;
-using System.IO;
-using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
-using System;
 
 namespace KombitStsUtilityTests;
 
