@@ -40,14 +40,17 @@ public class KombitStsRequest
 
     private readonly static XAttribute EncodingType = new("EncodingType", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
 
+    private readonly static string binarySecurityToken = "binarySecurityToken";
+
     public string Action { get; } = WsTrustConstants.Wst13IssueAction;
 
     private class SecurityTokenReference : KeyInfoClause
     {
-        public override XmlElement GetXml()
-        {
-            return new XElement("", "").Document.ToXmlDocument().DocumentElement;
-        }
+        public override XmlElement GetXml() => new XDocument(new XElement(NameSpaces.xwsse + "SecurityTokenReference", 
+                                                             new XAttribute("URI", $"#{binarySecurityToken}"),
+                                                             ValueType))
+                                                .ToXmlDocument()
+                                                .DocumentElement!;
 
         public override void LoadXml(XmlElement element)
         {
@@ -65,7 +68,7 @@ public class KombitStsRequest
 
         private XmlDocument Sign(X509Certificate2 cert)
         {
-            List("#messageID", "#action", "#timestamp", "#body", "#to", "#replyTo", "#binarySecurityToken")
+            List("#messageID", "#action", "#timestamp", "#body", "#to", "#replyTo", $"#{binarySecurityToken}")
             .Iter(s =>
             {
                 var reference = new Reference { Uri = s };
@@ -78,7 +81,7 @@ public class KombitStsRequest
             SignedInfo.CanonicalizationMethod = new XmlDsigExcC14NTransform().Algorithm;
             SignedInfo.SignatureMethod = XmlDsigRSASHA1Url;
             var ki = new KeyInfo();
-            //ki.AddClause(new SecurityTokenReference());
+            ki.AddClause(new SecurityTokenReference());
             KeyInfo = ki;
 
             ComputeSignature();
@@ -143,7 +146,7 @@ public class KombitStsRequest
         endpointReference.Add(address);
         address.Value = audience;
 
-        return doc.Root;
+        return doc.Root!;
     }
 
     private XDocument Build()
@@ -208,7 +211,7 @@ public class KombitStsRequest
         XmlUtil.CreateElement(WsseTags.Security,
             new XAttribute(NameSpaces.xsoap + "mustUnderstand", "1"),
             new XElement(NameSpaces.xwsse + "BinarySecurityToken",
-                               new XAttribute(NameSpaces.xwsu + "Id", "binarySecurityToken"),
+                               new XAttribute(NameSpaces.xwsu + "Id", binarySecurityToken),
                                EncodingType,
                                ValueType,
                                Convert.ToBase64String(certificate.Export(X509ContentType.Cert))));
