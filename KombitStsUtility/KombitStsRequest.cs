@@ -57,9 +57,8 @@ public class KombitStsRequest
         private class SecurityTokenReference : KeyInfoClause
         {
             public override XmlElement GetXml() => new XElement(NameSpaces.xwsse + "SecurityTokenReference",
-                                                                     new XAttribute("URI", $"#{binarySecurityToken}"),
-                                                                     ValueType)
-                                                                .ToXmlElement();
+                                                           new XElement(NameSpaces.xwsse + "Reference", new XAttribute("URI", $"#{binarySecurityToken}"), ValueType))
+                                                   .ToXmlElement();
 
             public override void LoadXml(XmlElement element) => throw new NotImplementedException();
         }
