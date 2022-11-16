@@ -44,22 +44,20 @@ public class KombitStsRequest
 
     public string Action { get; } = WsTrustConstants.Wst13IssueAction;
 
-    private class SecurityTokenReference : KeyInfoClause
-    {
-        public override XmlElement GetXml() => new XDocument(new XElement(NameSpaces.xwsse + "SecurityTokenReference", 
-                                                             new XAttribute("URI", $"#{binarySecurityToken}"),
-                                                             ValueType))
-                                                .ToXmlDocument()
-                                                .DocumentElement!;
-
-        public override void LoadXml(XmlElement element)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     private class XmlSigner : SignedXml
     {
+        private class SecurityTokenReference : KeyInfoClause
+        {
+            public override XmlElement GetXml() => new XDocument(
+                                                        new XElement(NameSpaces.xwsse + "SecurityTokenReference",
+                                                                     new XAttribute("URI", $"#{binarySecurityToken}"),
+                                                                     ValueType))
+                                                                .ToXmlDocument()
+                                                                .DocumentElement!;
+
+            public override void LoadXml(XmlElement element) => throw new NotImplementedException();
+        }
+
         private XmlDocument Xml { get; }
 
         private XmlSigner(XDocument xml) : this(xml.ToXmlDocument()) { }
@@ -113,7 +111,8 @@ public class KombitStsRequest
     }
 
 
-    private static XElement RequestSecurityToken(string audience, X509Certificate2 certificate) => new(NameSpaces.xtrust + "RequestSecurityToken",
+    private static XElement RequestSecurityToken(string audience, X509Certificate2 certificate) => 
+        new(NameSpaces.xtrust + "RequestSecurityToken",
             new XElement(NameSpaces.xtrust + "TokenType", WsseValues.SamlTokenType),
             new XElement(NameSpaces.xtrust + "RequestType", WsTrustConstants.Wst13IssueRequestType),
             AudienceElement(audience),
@@ -126,10 +125,9 @@ public class KombitStsRequest
                     Convert.ToBase64String(certificate.Export(X509ContentType.Cert))
             )));
 
-    private static XElement Claims() => new(NameSpaces.xtrust + "Claims",
-            new XAttribute("Dialect", WsfAuthValues.ClaimsDialect),
-            new XElement(NameSpaces.xwsfAuth + "ClaimType",
-                new XAttribute("Uri", "dk:gov:saml:attribute:CvrNumberIdentifier"),
+    private static XElement Claims() => 
+        new(NameSpaces.xtrust + "Claims", new XAttribute("Dialect", WsfAuthValues.ClaimsDialect),
+            new XElement(NameSpaces.xwsfAuth + "ClaimType", new XAttribute("Uri", "dk:gov:saml:attribute:CvrNumberIdentifier"),
                 new XElement(NameSpaces.xwsfAuth + "Value", 38163264))
             );
 
