@@ -17,8 +17,6 @@ public class KombitStsRequest
 
     public string Audience { get; }
 
-    public string BinarySecurityToken { get; }
-
     private readonly static XAttribute ValueType = new("ValueType", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
 
     private readonly static XAttribute EncodingType = new("EncodingType", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
@@ -84,17 +82,16 @@ public class KombitStsRequest
         public static XDocument Sign(X509Certificate2 cert, XDocument doc) => XDocument.Parse(new XmlSigner(doc).Sign(cert).OuterXml, LoadOptions.PreserveWhitespace);
     }
 
-    public KombitStsRequest(X509Certificate2 certificate, string audience, string binarySecurityToken)
+    public KombitStsRequest(X509Certificate2 certificate, string audience)
     {
         Audience = audience;
-        BinarySecurityToken = binarySecurityToken;
         Certificate = certificate;
     }
 
-    private void AddBodyContent(XElement body) => body.Add(RequestSecurityToken(Audience, BinarySecurityToken));
+    private void AddBodyContent(XElement body) => body.Add(RequestSecurityToken(Audience, Certificate));
 
 
-    private static XElement RequestSecurityToken(string audience, string binarySecurityToken) => new(NameSpaces.xtrust + "RequestSecurityToken",
+    private static XElement RequestSecurityToken(string audience, X509Certificate2 certificate) => new(NameSpaces.xtrust + "RequestSecurityToken",
             new XElement(NameSpaces.xtrust + "TokenType", WsseValues.SamlTokenType),
             new XElement(NameSpaces.xtrust + "RequestType", WsTrustConstants.Wst13IssueRequestType),
             AudienceElement(audience),
@@ -104,7 +101,7 @@ public class KombitStsRequest
                 new XElement(NameSpaces.xwsse + "BinarySecurityToken",
                     EncodingType,
                     ValueType,
-                    binarySecurityToken
+                    Convert.ToBase64String(certificate.Export(X509ContentType.Cert))
             )));
 
     private static XElement Claims() => new(NameSpaces.xtrust + "Claims",
@@ -177,7 +174,7 @@ public class KombitStsRequest
         AddHeaderContent(header);
     }
 
-    protected void AddHeaderContent(XElement header)
+    private void AddHeaderContent(XElement header)
     {
         var action = XmlUtil.CreateElement(WsaTags.Action);
         action.Add(new XAttribute("mustUnderstand", "1"),
@@ -191,7 +188,7 @@ public class KombitStsRequest
         messageId.Value = "urn:uuid:" + Guid.NewGuid().ToString("D");
 
         AddExtraHeaders(header);
-        var security = AddWsSecurityHeader(BinarySecurityToken);
+        var security = AddWsSecurityHeader(Certificate);
         header.Add(security);
         AddWsuTimestamp(security);
     }
@@ -206,34 +203,12 @@ public class KombitStsRequest
         timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", "timestamp"), created, expires);
     }
 
-    private static XElement AddWsSecurityHeader(string binarySecurityToken)
-    {
-        var securityHeader = XmlUtil.CreateElement(WsseTags.Security);
-        securityHeader.Add(new XElement(NameSpaces.xwsse + "BinarySecurityToken",
+    private static XElement AddWsSecurityHeader(X509Certificate2 certificate) => 
+        XmlUtil.CreateElement(WsseTags.Security,
+            new XElement(NameSpaces.xwsse + "BinarySecurityToken",
                                EncodingType,
                                ValueType,
-                               binarySecurityToken)
-                          );
-        return securityHeader;
-    }
-
-    protected void AddHeader(XElement header)
-    {
-        var action = XmlUtil.CreateElement(WsaTags.Action);
-        action.Add(new XAttribute("mustUnderstand", "1"),
-                   new XAttribute(NameSpaces.xwsu + "Id", "action"));
-        header.Add(action);
-        action.Value = Action;
-
-        var messageId = XmlUtil.CreateElement(WsaTags.MessageId);
-        messageId.Add(new XAttribute(NameSpaces.xwsu + "Id", "messageID"));
-        header.Add(messageId);
-        messageId.Value = "urn:uuid:" + Guid.NewGuid().ToString("D");
-
-        AddExtraHeaders(header);
-        var security = AddWsSecurityHeader(BinarySecurityToken);
-        AddWsuTimestamp(security);
-    }
+                               Convert.ToBase64String(certificate.Export(X509ContentType.Cert))));
 
     public XDocument ToXml() => Build();
 

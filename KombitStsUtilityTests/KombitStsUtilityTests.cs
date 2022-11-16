@@ -20,7 +20,6 @@ public class KombitStsUtilityTests
     public async Task RequestShouldBeCorrect()
     {
         var request = new KombitStsRequest(audience: "http://organisation.serviceplatformen.dk/service/organisation/5",
-                                           binarySecurityToken: "TODO",
                                            certificate: SelfSignedCert)
         {
             WsAddressingTo = "https://echo:8443/runtime/services/kombittrust/14/certificatemixed",
