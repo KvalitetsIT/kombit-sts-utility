@@ -177,8 +177,7 @@ public class KombitStsRequest
     private void AddHeaderContent(XElement header)
     {
         var action = XmlUtil.CreateElement(WsaTags.Action);
-        action.Add(new XAttribute("mustUnderstand", "1"),
-                   new XAttribute(NameSpaces.xwsu + "Id", "action"));
+        action.Add(new XAttribute(NameSpaces.xwsu + "Id", "action"));
         header.Add(action);
         action.Value = Action;
 
@@ -205,6 +204,7 @@ public class KombitStsRequest
 
     private static XElement AddWsSecurityHeader(X509Certificate2 certificate) => 
         XmlUtil.CreateElement(WsseTags.Security,
+            new XAttribute(((XNamespace)"http://www.w3.org/2003/05/soap-envelope") + "mustUnderstand", "1"),
             new XElement(NameSpaces.xwsse + "BinarySecurityToken",
                                EncodingType,
                                ValueType,
