@@ -128,18 +128,19 @@ public class KombitStsRequest
                     EncodingType,
                     ValueType,
                     Convert.ToBase64String(certificate.Export(X509ContentType.Cert
-            )))));
+        )))));
 
     private static XElement Claims(string municipalityCvr) => 
         new(NameSpaces.xtrust + "Claims", new XAttribute("Dialect", WsfAuthValues.ClaimsDialect),
             new XElement(NameSpaces.xwsfAuth + "ClaimType", new XAttribute("Uri", "dk:gov:saml:attribute:CvrNumberIdentifier"),
-                new XElement(NameSpaces.xwsfAuth + "Value", municipalityCvr)));
+                new XElement(NameSpaces.xwsfAuth + "Value", municipalityCvr
+        )));
 
     private static XElement EndpointElement(string endpoint) => 
                         XmlUtil.CreateElement(WspTags.AppliesTo,
                             XmlUtil.CreateElement(WsaTags.EndpointReference,
                                 XmlUtil.CreateElement(WsaTags.Address, endpoint
-                   )));
+                        )));
 
     private XDocument Build()
     {

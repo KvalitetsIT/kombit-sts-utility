@@ -4,8 +4,6 @@ using KombitStsUtility;
 using System.IO;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
-using dk.nsi.seal;
-using System.Xml.Linq;
 using System.Security.Cryptography;
 using System;
 
