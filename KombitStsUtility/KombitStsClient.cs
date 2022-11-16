@@ -16,8 +16,7 @@ namespace KombitStsUtility
                 new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
             client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
 
-            var encodedRequest = HttpUtility.UrlEncode(ToBase64String(UTF8.GetBytes(request.ToString())));
-            var response = await client.PostAsync(stsUri.ToString(), new StringContent(encodedRequest));
+            var response = await client.PostAsync(stsUri.ToString(), new StringContent(request.ToString()));
 
             return XDocument.Parse(await response.Content.ReadAsStringAsync());
         }
