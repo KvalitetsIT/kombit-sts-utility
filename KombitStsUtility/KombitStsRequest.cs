@@ -6,6 +6,7 @@ using dk.nsi.seal.Model;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
+using System.Collections.Immutable;
 
 namespace KombitStsUtility;
 
@@ -50,8 +51,10 @@ public class KombitStsRequest
             ComputeSignature();
 
             XmlElement signaelm = GetXml();
-            if (Xml.SelectSingleNode("/soap:Envelope/soap:Header/wsse:Security", NameSpaces.MakeNsManager(Xml.NameTable)) is not XmlElement xSecurity)
-            { throw new InvalidOperationException("No Signature element found in /Envolope/Header/Security"); }
+            
+            const string securityPath = "/soap:Envelope/soap:Header/wsse:Security";
+            if (Xml.SelectSingleNode(securityPath, NameSpaces.MakeNsManager(Xml.NameTable)) is not XmlElement xSecurity)
+            { throw new InvalidOperationException($"No Signature element found in {securityPath}"); }
             xSecurity.AppendChild(xSecurity.OwnerDocument.ImportNode(signaelm, true));
 
             return Xml;
@@ -88,9 +91,7 @@ public class KombitStsRequest
         Certificate = certificate;
     }
 
-    private void AddBodyContent(XElement body) => body.Add(RequestSecurityToken(Audience, Certificate));
-
-
+    
     private static XElement RequestSecurityToken(string audience, X509Certificate2 certificate) => new(NameSpaces.xtrust + "RequestSecurityToken",
             new XElement(NameSpaces.xtrust + "TokenType", WsseValues.SamlTokenType),
             new XElement(NameSpaces.xtrust + "RequestType", WsTrustConstants.Wst13IssueRequestType),
@@ -109,7 +110,7 @@ public class KombitStsRequest
             new XElement(NameSpaces.xwsfAuth + "ClaimType",
                 new XAttribute("Uri", "dk:gov:saml:attribute:CvrNumberIdentifier"),
                 new XElement(NameSpaces.xwsfAuth + "Value", 38163264))
-        );
+            );
 
     private static XElement AudienceElement(string audience)
     {
@@ -135,43 +136,35 @@ public class KombitStsRequest
 
     private XDocument Build()
     {
-        var document = CreateDocument();
+        var document = Envelope();
         SealUtilities.CheckAndSetSamlDsPreFix(document);
         NameSpaces.SetMissingNamespaces(document);
         return XmlSigner.Sign(Certificate, document);
     }
 
-    private XDocument CreateDocument()
+    private XDocument Envelope()
     {
-        var doc = new XDocument();
-        var root = XmlUtil.CreateElement(SoapTags.Envelope);
-        doc.Add(root);
+        var root = new XElement(NameSpaces.xsoap + "Envelope");
         AppendToRoot(root);
-        return doc;
+        return new XDocument(root);
     }
 
     private void AppendToRoot(XElement root)
     {
         // HACK: Needs to write body first, or the assertion validation will fail after signing the message in the header.
         // hash values for assertion will change if header is not last?
-        AppendBody(root);
-        AppendHeader(root);
+        root.Add(Body());
+        root.Add(Header());
     }
 
-    private void AppendBody(XElement envelope)
-    {
-        var body = XmlUtil.CreateElement(SoapTags.Body);
-        body.Add(new XAttribute(NameSpaces.xwsu + "Id", "body"));
+    private XElement Body() => new(NameSpaces.xsoap + "Body", new XAttribute(NameSpaces.xwsu + "Id", "body"),
+                               RequestSecurityToken(Audience, Certificate));
 
-        envelope.Add(body);
-        AddBodyContent(body);
-    }
-
-    private void AppendHeader(XElement envelope)
+    private XElement Header()
     {
-        var header = XmlUtil.CreateElement(SoapTags.Header);
-        envelope.Add(header);
+        var header = new XElement(NameSpaces.xsoap + "Header");
         AddHeaderContent(header);
+        return header;
     }
 
     private void AddHeaderContent(XElement header)
@@ -204,7 +197,7 @@ public class KombitStsRequest
 
     private static XElement AddWsSecurityHeader(X509Certificate2 certificate) => 
         XmlUtil.CreateElement(WsseTags.Security,
-            new XAttribute(((XNamespace)"http://www.w3.org/2003/05/soap-envelope") + "mustUnderstand", "1"),
+            new XAttribute(NameSpaces.xsoap + "mustUnderstand", "1"),
             new XElement(NameSpaces.xwsse + "BinarySecurityToken",
                                EncodingType,
                                ValueType,

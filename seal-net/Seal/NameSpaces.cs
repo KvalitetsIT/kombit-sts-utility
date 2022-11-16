@@ -7,13 +7,14 @@ namespace dk.nsi.seal
 {
     public class NameSpaces
     {
-        public const string wsa = "http://www.w3.org/2005/08/addressing",
+        public const string 
+            wsa = "http://www.w3.org/2005/08/addressing",
             wsa04 = "http://schemas.xmlsoap.org/ws/2004/08/addressing",
             wsa2 = "http://schemas.microsoft.com/ws/2005/05/addressing/none",
             wsu = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
             wsse = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
             ds = "http://www.w3.org/2000/09/xmldsig#",
-            soap = "http://schemas.xmlsoap.org/soap/envelope/",
+            soap = "http://www.w3.org/2003/05/soap-envelope",
             trust = "http://docs.oasis-open.org/ws-sx/ws-trust/200512",
             tr = "http://docs.oasis-open.org/ws-sx/ws-trust/200802",
             wsfAuth = "http://docs.oasis-open.org/wsfed/authorization/200706",
@@ -33,8 +34,7 @@ namespace dk.nsi.seal
             medcom = "medcom",
             bpp = "http://digst.dk/oiosaml/basic_privilege_profile",
             schemaInstance = "http://www.w3.org/2001/XMLSchema-instance",
-            xmlEnc = "http://www.w3.org/2001/04/xmlenc#"
-        ;
+            xmlEnc = "http://www.w3.org/2001/04/xmlenc#";
 
         public static XNamespace xsoap = soap,
             xwsu = wsu,
