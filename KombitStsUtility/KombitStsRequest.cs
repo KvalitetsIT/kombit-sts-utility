@@ -94,36 +94,34 @@ public class KombitStsRequest
             ComputeSignature();
 
             var sigDig = GetXml();
-            sigDig .SetAttribute("xmlns:ds", XmlDsigNamespaceUrl);
+            sigDig.SetAttribute("xmlns:ds", XmlDsigNamespaceUrl);
             sigDig.Prefix = "ds";
 
-            void SetDsNamespace(XmlNodeList l)
+            static void AlterNamespaces(XmlNodeList l)
             {
                 if (l.Count == 0) { return; }
-                foreach (var n2 in l)
+                foreach (var n in l)
                 {
-                    if (n2 is XmlElement xElm) { 
+                    if (n is XmlElement xElm) { 
+                        if(xElm.Name == "SecurityTokenReference") {
+                            xElm.Prefix = xElm.ChildNodes[0]!.Prefix = "wsse";
+                            return; 
+                        }
                         xElm.Prefix = "ds";
-                        SetDsNamespace(xElm.ChildNodes);
+                        AlterNamespaces(xElm.ChildNodes);
                     }
-                    else if (n2 is XmlText tElm) { 
+                    else if (n is XmlText tElm) {
+                        if (tElm.Name == "SecurityTokenReference") {
+                            tElm.Prefix = "wsse";
+                            return; 
+                        }
                         tElm.Prefix = "ds";
-                        SetDsNamespace(tElm.ChildNodes);
+                        AlterNamespaces(tElm.ChildNodes);
                     }
                 }
             }
 
-            SetDsNamespace(sigDig.ChildNodes);
-
-            foreach(var n in sigDig.ChildNodes)
-            {
-                var e = (XmlElement)n;
-                e.Prefix = "ds";
-                foreach(var n2 in e.ChildNodes) { 
-                    if(n2 is XmlElement xElm) { xElm.Prefix = "ds"; }
-                    else if (n2 is XmlText tElm) { tElm.Prefix = "ds"; }
-                }
-            }
+            AlterNamespaces(sigDig.ChildNodes);
 
             const string securityPath = "/soap:Envelope/soap:Header/wsse:Security";
             if (Xml.SelectSingleNode(securityPath, NameSpaces.MakeNsManager(Xml.NameTable)) is not XmlElement xSecurity)
