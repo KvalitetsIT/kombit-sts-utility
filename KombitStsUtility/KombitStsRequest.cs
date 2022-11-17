@@ -24,7 +24,7 @@ public static class XmlExt
         var stream = new MemoryStream();
         xml.Save(stream, SaveOptions.DisableFormatting);
         stream.Position = 0;
-        var doc = new XmlDocument { PreserveWhitespace = true };
+        var doc = new XmlDocument();
         doc.Load(stream);
         return doc;
     }
@@ -93,12 +93,42 @@ public class KombitStsRequest
 
             ComputeSignature();
 
+            var sigDig = GetXml();
+            sigDig .SetAttribute("xmlns:ds", XmlDsigNamespaceUrl);
+            sigDig.Prefix = "ds";
+
+            void SetDsNamespace(XmlNodeList l)
+            {
+                if (l.Count == 0) { return; }
+                foreach (var n2 in l)
+                {
+                    if (n2 is XmlElement xElm) { 
+                        xElm.Prefix = "ds";
+                        SetDsNamespace(xElm.ChildNodes);
+                    }
+                    else if (n2 is XmlText tElm) { 
+                        tElm.Prefix = "ds";
+                        SetDsNamespace(tElm.ChildNodes);
+                    }
+                }
+            }
+
+            SetDsNamespace(sigDig.ChildNodes);
+
+            foreach(var n in sigDig.ChildNodes)
+            {
+                var e = (XmlElement)n;
+                e.Prefix = "ds";
+                foreach(var n2 in e.ChildNodes) { 
+                    if(n2 is XmlElement xElm) { xElm.Prefix = "ds"; }
+                    else if (n2 is XmlText tElm) { tElm.Prefix = "ds"; }
+                }
+            }
 
             const string securityPath = "/soap:Envelope/soap:Header/wsse:Security";
             if (Xml.SelectSingleNode(securityPath, NameSpaces.MakeNsManager(Xml.NameTable)) is not XmlElement xSecurity)
             { throw new InvalidOperationException($"No Signature element found in {securityPath}"); }
-            xSecurity.AppendChild(xSecurity.OwnerDocument.ImportNode(GetXml(), true));
-
+            xSecurity.AppendChild(xSecurity.OwnerDocument.ImportNode(sigDig, true));
             return Xml.ToXDocument();
         }
 
@@ -205,7 +235,7 @@ public class KombitStsRequest
         timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", "timestamp"), created, expires);
     }
 
-    public string ToFormattedString() => ToXml().ToString();
+    public string ToPrettyString() => ToXml().ToString();
 
     public override string ToString() => ToXml().ToString(SaveOptions.DisableFormatting);
 

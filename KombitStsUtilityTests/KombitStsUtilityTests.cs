@@ -20,9 +20,6 @@ public class KombitStsUtilityTests
 
         await File.WriteAllTextAsync("GeneratedRequest.xml", request.ToString());
 
-        //var xmlSigner = new SignedXml(request.ToXml().ToXmlDocument());
-        //xmlSigner.CheckSignature().ShouldBeTrue(); TODO
-
         var stsUri = new Uri("https://adgangsstyring.eksterntest-stoettesystemerne.dk/runtime/services/kombittrust/14/certificatemixed");
         var echoUri = new Uri("http://localhost:8686/RequestTest");
         var response = await KombitStsClient.GetAssertion(stsUri, request);
@@ -32,5 +29,7 @@ public class KombitStsUtilityTests
         // var encodedRequest = HttpUtility.UrlEncode(ToBase64String(UTF8.GetBytes(request.ToString()))); TODO
 
         // TODO Validate response from STS - use dk.nsi.seal.Model.OioWsTrustMessage and/or dk.nsi.seal.SealUtilities and/or dk.nsi.seal.SealSignedXml and/or dk.nsi.seal.Model.SignatureUtil as inspiration
+        // var xmlSigner = new SignedXml(request.ToXml().ToXmlDocument());
+        // xmlSigner.CheckSignature().ShouldBeTrue();
     }
 }
