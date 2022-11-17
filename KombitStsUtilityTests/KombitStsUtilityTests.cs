@@ -1,13 +1,12 @@
 using Xunit;
 using KombitStsUtility;
 using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography;
 
 namespace KombitStsUtilityTests;
 
 public class KombitStsUtilityTests
 {
-    private readonly static X509Certificate2 Cert = new("kit-test.pfx", "Test1234");
+    private readonly static X509Certificate2 Cert = X509Certificate2.CreateFromPemFile(certPemFilePath: "kit-test.cer", keyPemFilePath: "kit-test.pem");
 
     [Fact]
     public async Task RequestShouldBeCorrect()

@@ -11,6 +11,8 @@ namespace KombitStsUtility;
 
 public static class XmlExt
 {
+
+
     public static XmlElement ToXmlElement(this XElement element)
     {
         var xmlDocument = new XmlDocument();
@@ -19,20 +21,26 @@ public static class XmlExt
         return xmlDocument.DocumentElement!;
     }
 
-    public static XmlDocument ToXmlDocument(this XDocument xDocument)
+    public static XmlDocument ToXmlDocument(this XDocument xml)
     {
-        var xmlDocument = new XmlDocument();
-        using var xmlReader = xDocument.CreateReader();      
-        xmlDocument.Load(xmlReader);
-        return xmlDocument;
+        var stream = new MemoryStream();
+        xml.Save(stream, SaveOptions.DisableFormatting);
+        stream.Position = 0;
+        var doc = new XmlDocument { PreserveWhitespace = true };
+        doc.Load(stream);
+        return doc;
     }
+
 
     public static XDocument ToXDocument(this XmlDocument xmlDocument)
     {
-        using var nodeReader = new XmlNodeReader(xmlDocument);
-        nodeReader.MoveToContent();
-        return XDocument.Load(nodeReader);
+        var ms = new MemoryStream();
+        xmlDocument.Save(ms);
+        ms.Position = 0;
+        return XDocument.Load(ms);
     }
+
+
 }
 
 public class KombitStsRequest
@@ -77,25 +85,24 @@ public class KombitStsRequest
             {
                 var reference = new Reference { Uri = s };
                 reference.AddTransform(new XmlDsigExcC14NTransform());
-                reference.DigestMethod = XmlDsigSHA1Url;
+                reference.DigestMethod = XmlDsigSHA256Url;
                 AddReference(reference);
             });
 
             SigningKey = cert.GetRSAPrivateKey();
             SignedInfo.CanonicalizationMethod = new XmlDsigExcC14NTransform().Algorithm;
-            SignedInfo.SignatureMethod = XmlDsigRSASHA1Url;
+            SignedInfo.SignatureMethod = XmlDsigRSASHA256Url;
             var ki = new KeyInfo();
             ki.AddClause(new SecurityTokenReference());
             KeyInfo = ki;
 
             ComputeSignature();
 
-            XmlElement signaelm = GetXml();
-            
+
             const string securityPath = "/soap:Envelope/soap:Header/wsse:Security";
             if (Xml.SelectSingleNode(securityPath, NameSpaces.MakeNsManager(Xml.NameTable)) is not XmlElement xSecurity)
             { throw new InvalidOperationException($"No Signature element found in {securityPath}"); }
-            xSecurity.AppendChild(xSecurity.OwnerDocument.ImportNode(signaelm, true));
+            xSecurity.AppendChild(xSecurity.OwnerDocument.ImportNode(GetXml(), true));
 
             return Xml.ToXDocument();
         }
@@ -203,7 +210,9 @@ public class KombitStsRequest
         timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", "timestamp"), created, expires);
     }
 
-    public override string ToString() => ToXml().ToString();
+    public string ToFormattedString() => ToXml().ToString();
+
+    public override string ToString() => ToXml().ToString(SaveOptions.DisableFormatting);
 
     public XDocument ToXml() => Build();
 }

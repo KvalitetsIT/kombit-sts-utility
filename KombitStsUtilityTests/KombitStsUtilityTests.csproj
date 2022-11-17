@@ -19,11 +19,11 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Request.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-	<None Include="kit-test.pfx">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="kit-test.cer">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</None>
+	<None Update="kit-test.pem">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
   </ItemGroup>
   <ItemGroup>

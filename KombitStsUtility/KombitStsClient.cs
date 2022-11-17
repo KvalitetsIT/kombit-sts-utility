@@ -8,17 +8,14 @@ namespace KombitStsUtility
 {
     public static class KombitStsClient
     {
-        public static async Task<XDocument> GetAssertion(Uri stsUri, KombitStsRequest request)
+        public static async Task<string> GetAssertion(Uri stsUri, KombitStsRequest request)
         {
-            throw new NotImplementedException();
             using HttpClient client = new();
-            client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
-            client.DefaultRequestHeaders.Add("User-Agent", ".NET Foundation Repository Reporter");
+            client.DefaultRequestHeaders.Add("soapaction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
 
-            var response = await client.PostAsync(stsUri.ToString(), new StringContent(request.ToString()));
+            var response = await client.PostAsync(stsUri.ToString(), new StringContent(request.ToString(), UTF8, "application/soap+xml"));
 
-            return XDocument.Parse(await response.Content.ReadAsStringAsync());
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }
