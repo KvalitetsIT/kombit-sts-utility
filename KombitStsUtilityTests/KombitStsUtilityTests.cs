@@ -1,6 +1,8 @@
 using Xunit;
+using Shouldly;
 using KombitStsUtility;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
 
 namespace KombitStsUtilityTests;
 
@@ -18,9 +20,12 @@ public class KombitStsUtilityTests
 
         await File.WriteAllTextAsync("GeneratedRequest.xml", request.ToString());
 
+        //var xmlSigner = new SignedXml(request.ToXml().ToXmlDocument());
+        //xmlSigner.CheckSignature().ShouldBeTrue(); TODO
+
         var stsUri = new Uri("https://adgangsstyring.eksterntest-stoettesystemerne.dk/runtime/services/kombittrust/14/certificatemixed");
         var echoUri = new Uri("http://localhost:8686/RequestTest");
-        var response = await KombitStsClient.GetAssertion(echoUri, request);
+        var response = await KombitStsClient.GetAssertion(stsUri, request);
 
         await File.WriteAllTextAsync("StsResponse.xml", response);
 

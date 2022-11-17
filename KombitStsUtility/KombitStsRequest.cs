@@ -29,7 +29,6 @@ public static class XmlExt
         return doc;
     }
 
-
     public static XDocument ToXDocument(this XmlDocument xmlDocument)
     {
         var ms = new MemoryStream();
@@ -37,8 +36,6 @@ public static class XmlExt
         ms.Position = 0;
         return XDocument.Load(ms);
     }
-
-
 }
 
 public class KombitStsRequest
