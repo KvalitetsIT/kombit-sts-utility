@@ -11,8 +11,6 @@ namespace KombitStsUtility;
 
 public static class XmlExt
 {
-
-
     public static XmlElement ToXmlElement(this XElement element)
     {
         var xmlDocument = new XmlDocument();

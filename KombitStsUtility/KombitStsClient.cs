@@ -1,21 +1,17 @@
-﻿using System.Net.Http.Headers;
-using System.Web;
-using System.Xml.Linq;
-using static System.Convert;
+﻿using dk.nsi.seal.Model.Constants;
 using static System.Text.Encoding;
 
-namespace KombitStsUtility
+namespace KombitStsUtility;
+
+public static class KombitStsClient
 {
-    public static class KombitStsClient
+    public static async Task<string> GetAssertion(Uri stsUri, KombitStsRequest request)
     {
-        public static async Task<string> GetAssertion(Uri stsUri, KombitStsRequest request)
-        {
-            using HttpClient client = new();
-            client.DefaultRequestHeaders.Add("soapaction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue");
-
-            var response = await client.PostAsync(stsUri.ToString(), new StringContent(request.ToString(), UTF8, "application/soap+xml"));
-
-            return await response.Content.ReadAsStringAsync();
-        }
+        var handler = new HttpClientHandler();
+        handler.ClientCertificates.Add(request.Certificate);
+        using var client = new HttpClient(handler);
+        client.DefaultRequestHeaders.Add("soapaction", WsTrustConstants.Wst13IssueAction);
+        var response = await client.PostAsync(stsUri.ToString(), new StringContent(request.ToString(), UTF8, "application/soap+xml"));
+        return await response.Content.ReadAsStringAsync();
     }
 }
