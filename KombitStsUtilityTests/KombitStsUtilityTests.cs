@@ -11,7 +11,7 @@ public class KombitStsUtilityTests
     [Fact]
     public async Task RequestShouldBeCorrect()
     {
-        var request = new KombitStsRequest(endpoint: "http://organisation.serviceplatformen.dk/service/organisation/5",
+        var request = new KombitStsRequest(endpointReference: "http://organisation.serviceplatformen.dk/service/organisation/5",
                                            certificate: Cert,
                                            wsAddressingTo: new Uri("https://echo:8443/runtime/services/kombittrust/14/certificatemixed"),
                                            municipalityCvr: 38163264);
