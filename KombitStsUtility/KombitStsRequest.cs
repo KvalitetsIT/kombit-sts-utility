@@ -102,21 +102,22 @@ public class KombitStsRequest
                 if (l.Count == 0) { return; }
                 foreach (var n in l)
                 {
-                    if (n is XmlElement xElm) { 
-                        if(xElm.Name == "SecurityTokenReference") {
+                    switch (n)
+                    {
+                        case XmlElement { Name: "SecurityTokenReference" } xElm:
                             xElm.Prefix = xElm.ChildNodes[0]!.Prefix = "wsse";
-                            return; 
-                        }
-                        xElm.Prefix = "ds";
-                        AlterNamespaces(xElm.ChildNodes);
-                    }
-                    else if (n is XmlText tElm) {
-                        if (tElm.Name == "SecurityTokenReference") {
+                            return;
+                        case XmlElement xElm:
+                            xElm.Prefix = "ds";
+                            AlterNamespaces(xElm.ChildNodes);
+                            break;
+                        case XmlText { Name: "SecurityTokenReference" } tElm:
                             tElm.Prefix = "wsse";
-                            return; 
-                        }
-                        tElm.Prefix = "ds";
-                        AlterNamespaces(tElm.ChildNodes);
+                            return;
+                        case XmlText tElm:
+                            tElm.Prefix = "ds";
+                            AlterNamespaces(tElm.ChildNodes);
+                            break;
                     }
                 }
             }

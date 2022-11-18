@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="ChilkatDnCore" Version="9.5.0.92" />
     <PackageReference Include="LanguageExt.Core" Version="4.2.9" />
   </ItemGroup>
 
