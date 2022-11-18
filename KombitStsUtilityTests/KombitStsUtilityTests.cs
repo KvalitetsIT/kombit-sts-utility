@@ -2,7 +2,6 @@ using Xunit;
 using Shouldly;
 using KombitStsUtility;
 using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Xml.Linq;
 using LanguageExt;
@@ -24,22 +23,22 @@ public class KombitStsUtilityTests
             certificate: Cert,
             wsAddressingTo: new Uri("https://echo:8443/runtime/services/kombittrust/14/certificatemixed"),
             municipalityCvr: 38163264);
-        await File.WriteAllTextAsync("GeneratedRequest.xml", request.ToString());
+        await File.WriteAllTextAsync("GeneratedRequest.xml", request.ToPrettyString());
         Should.NotThrow(() => VerifySignature(request.ToXml()).IfLeft(ex => throw ex));
 
         var stsUri =
             new Uri(
                 "https://adgangsstyring.eksterntest-stoettesystemerne.dk/runtime/services/kombittrust/14/certificatemixed");
         var echoUri = new Uri("http://localhost:8686/RequestTest");
-        var response = await KombitStsClient.GetAssertion(echoUri, request);
+        var response = await KombitStsClient.GetAssertion(stsUri, request);
 
-        // await File.WriteAllTextAsync("StsResponse.xml", response);
+        await File.WriteAllTextAsync("StsResponse.xml", response.ToString());
 
         // var encodedRequest = HttpUtility.UrlEncode(ToBase64String(UTF8.GetBytes(request.ToString()))); TODO
 
         // TODO Validate response from STS - use dk.nsi.seal.Model.OioWsTrustMessage and/or dk.nsi.seal.SealUtilities and/or dk.nsi.seal.SealSignedXml and/or dk.nsi.seal.Model.SignatureUtil as inspiration
         // var xmlSigner = new SignedXml(request.ToXml().ToXmlDocument());
-        // xmlSigner.CheckSignature().ShouldBeTrue();
+        // var res = dsig.VerifySignature(true).ShouldBeTrue();
     }
 
     private static Either<Error, Unit> VerifySignature(XNode doc)
