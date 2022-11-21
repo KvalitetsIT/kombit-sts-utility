@@ -1,4 +1,5 @@
-﻿using dk.nsi.seal.Model.Constants;
+﻿using System.Security.Cryptography;
+using dk.nsi.seal.Model.Constants;
 using System.Xml.Linq;
 using dk.nsi.seal;
 using dk.nsi.seal.Model;
@@ -56,8 +57,6 @@ public class KombitStsRequest
 
     private const string binarySecurityToken = "binarySecurityToken";
 
-    public string Action { get; } = WsTrustConstants.Wst13IssueAction;
-
     private class XmlSigner : SignedXml
     {
         private class SecurityTokenReference : KeyInfoClause
@@ -72,9 +71,7 @@ public class KombitStsRequest
 
         private XmlDocument Xml { get; }
 
-        private XmlSigner(XDocument xml) : this(xml.ToXmlDocument())
-        {
-        }
+        private XmlSigner(XDocument xml) : this(xml.ToXmlDocument()) { }
 
         private XmlSigner(XmlDocument xml) : base(xml) => Xml = xml;
 
@@ -122,9 +119,7 @@ public class KombitStsRequest
 
     public KombitStsRequest(int municipalityCvr, X509Certificate2 certificate, string endpointReference,
         Uri wsAddressingTo)
-        : this(municipalityCvr.ToString(), certificate, endpointReference, wsAddressingTo)
-    {
-    }
+        : this(municipalityCvr.ToString(), certificate, endpointReference, wsAddressingTo) { }
 
     public KombitStsRequest(string municipalityCvr, X509Certificate2 certificate, string endpointReference,
         Uri wsAddressingTo)
@@ -133,13 +128,18 @@ public class KombitStsRequest
         WsAddressingTo = wsAddressingTo;
         MunicipalityCvr = municipalityCvr;
         Certificate = certificate;
+        Dom = BuildXml();
     }
-    
-    public string ToPrettyString() => ToXml().ToString();
 
-    public override string ToString() => ToXml().ToString(SaveOptions.DisableFormatting);
+    private XDocument Dom { get; }
 
-    public XDocument ToXml()
+    public XDocument ToDom() => Dom;
+
+    public string ToPrettyString() => Dom.ToString();
+
+    public override string ToString() => Dom.ToString(SaveOptions.DisableFormatting);
+
+    private XDocument BuildXml()
     {
         var document = Envelope();
         NameSpaces.SetMissingNamespaces(document);
@@ -148,13 +148,13 @@ public class KombitStsRequest
 
     // Needs to write body first, or the assertion validation will fail after signing the message in the header.
     // Hash values for assertion will change if header is not last?
-    private XDocument Envelope() => new(new XElement(NameSpaces.xsoap + "Envelope", Body(), Header()));
+    private XDocument Envelope() => new(new XElement(NameSpaces.xsoap + "Envelope", Header(), Body()));
 
     private XElement Body() => new(NameSpaces.xsoap + "Body", new XAttribute(NameSpaces.xwsu + "Id", "body"),
         RequestSecurityToken(EndpointReference, MunicipalityCvr, Certificate));
 
     private static XElement RequestSecurityToken(string endpointReference, string municipalityCvr,
-        X509Certificate2 certificate) =>
+        X509Certificate certificate) =>
         new(NameSpaces.xtrust + "RequestSecurityToken",
             new XElement(NameSpaces.xtrust + "TokenType", WsseValues.SamlTokenType),
             new XElement(NameSpaces.xtrust + "RequestType", WsTrustConstants.Wst13IssueRequestType),
@@ -187,7 +187,7 @@ public class KombitStsRequest
         var action = XmlUtil.CreateElement(WsaTags.Action);
         action.Add(new XAttribute(NameSpaces.xwsu + "Id", "action"));
         header.Add(action);
-        action.Value = Action;
+        action.Value = WsTrustConstants.Wst13IssueAction;
 
         var messageId = XmlUtil.CreateElement(WsaTags.MessageId);
         messageId.Add(new XAttribute(NameSpaces.xwsu + "Id", "messageID"));

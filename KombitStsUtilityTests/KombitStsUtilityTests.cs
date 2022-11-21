@@ -24,8 +24,8 @@ public class KombitStsUtilityTests
             wsAddressingTo: new Uri("https://echo:8443/runtime/services/kombittrust/14/certificatemixed"),
             municipalityCvr: 38163264);
         await File.WriteAllTextAsync("GeneratedRequest.xml", request.ToPrettyString());
-        Should.NotThrow(() => VerifySignature(request.ToXml()).IfLeft(ex => throw ex));
-
+        Should.NotThrow(() => VerifySignature(request.ToDom()).IfLeft(ex => throw ex));
+        
         var stsUri =
             new Uri(
                 "https://adgangsstyring.eksterntest-stoettesystemerne.dk/runtime/services/kombittrust/14/certificatemixed");
@@ -55,9 +55,9 @@ public class KombitStsUtilityTests
         {
             dsig.Selector = i;
 
-            var bVerifyRefDigests = false;
-            var bSignatureVerified = dsig.VerifySignature(bVerifyRefDigests);
-            if (!bSignatureVerified)
+            const bool verifyRefDigests = false;
+            var signatureVerified = dsig.VerifySignature(verifyRefDigests);
+            if (!signatureVerified)
             {
                 success = false;
                 errorDescription.Append("Signature " + Convert.ToString(i + 1) + " invalid");
@@ -68,10 +68,10 @@ public class KombitStsUtilityTests
             var j = 0;
             while (j < numRefDigests)
             {
-                var bDigestVerified = dsig.VerifyReferenceDigest(j);
+                var digestVerified = dsig.VerifyReferenceDigest(j);
                 errorDescription.Append(NewLine + "reference digest " + Convert.ToString(j + 1) + " verified = " +
-                                        Convert.ToString(bDigestVerified));
-                if (bDigestVerified == false)
+                                        Convert.ToString(digestVerified));
+                if (digestVerified == false)
                 {
                     success = false;
                     errorDescription.Append(NewLine + "    reference digest fail reason: " +
