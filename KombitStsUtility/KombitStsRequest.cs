@@ -5,6 +5,7 @@ using dk.nsi.seal.Model;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
+using System.Xml.Serialization;
 using static LanguageExt.Prelude;
 
 namespace KombitStsUtility;
@@ -61,14 +62,15 @@ public class KombitStsRequest
         replyToRef = "_" + Guid.NewGuid(),
         timestampRef = "TS-" + Guid.NewGuid(),
         binarySecurityTokenRef = "X509-" + Guid.NewGuid(),
-        bodyRef = "_" + Guid.NewGuid();
+        bodyRef = "_" + Guid.NewGuid(),
+        securityTokenReference = "SecurityTokenReference";
 
 
     private class XmlSigner : SignedXml
     {
         private class SecurityTokenReference : KeyInfoClause
         {
-            public override XmlElement GetXml() => new XElement(NameSpaces.xwsse + "SecurityTokenReference",
+            public override XmlElement GetXml() => new XElement(NameSpaces.xwsse + securityTokenReference,
                     new XElement(NameSpaces.xwsse + "Reference", new XAttribute("URI", $"#{binarySecurityTokenRef}"),
                         ValueType))
                 .ToXmlElement();
@@ -142,7 +144,7 @@ public class KombitStsRequest
 
         private static void SetSignaturePrefix(XmlNode node)
         {
-            if (node.Name == "SecurityTokenReference")
+            if (node.Name == securityTokenReference)
             {
                 node.Prefix = node.ChildNodes[0].Prefix = "wsse";
                 return;
@@ -175,9 +177,7 @@ public class KombitStsRequest
 
     public KombitStsRequest(int municipalityCvr, X509Certificate2 certificate, string endpointReference,
         Uri wsAddressingTo)
-        : this(municipalityCvr.ToString(), certificate, endpointReference, wsAddressingTo)
-    {
-    }
+        : this(municipalityCvr.ToString(), certificate, endpointReference, wsAddressingTo) { }
 
     public KombitStsRequest(string municipalityCvr, X509Certificate2 certificate, string endpointReference,
         Uri wsAddressingTo)
@@ -200,12 +200,58 @@ public class KombitStsRequest
     private XDocument BuildXml()
     {
         var document = Envelope();
-        NameSpaces.SetMissingNamespaces(document);
         return XmlSigner.Sign(Certificate, document);
     }
 
-    private XDocument Envelope() => new(new XElement(NameSpaces.xsoap + "Envelope", Header(), Body()));
+    private XDocument Envelope() => new(new XElement(NameSpaces.xsoap + "Envelope",
+        new XAttribute(XNamespace.Xmlns + "soap", NameSpaces.soap), Header(), Body()));
 
+    private XElement Header()
+    {
+        var header =
+            new XElement(NameSpaces.xsoap + "Header",
+                new XElement(NameSpaces.xwsa + "Action", WsuId(actionRef), WsTrustConstants.Wst13IssueAction),
+                MessageId(),
+                new XElement(NameSpaces.xwsa + "To", WsuId(toRef), WsAddressingTo),
+                new XElement(NameSpaces.xwsa + "ReplyTo", WsuId(replyToRef),
+                    new XElement("Address", "http://www.w3.org/2005/08/addressing/anonymous")));
+        
+        var security = AddWsSecurityHeader(Certificate);
+        header.Add(security);
+        AddWsuTimestamp(security);
+        return header;
+    }
+
+    private static XElement MessageId() => 
+        new(NameSpaces.xwsa + "MessageID", WsuId(messageIdRef),
+        "urn:uuid:" + Guid.NewGuid().ToString("D"));
+
+    private static IEnumerable<XAttribute> WsuId(string id) =>
+        List(new XAttribute(XNamespace.Xmlns + "wsu", NameSpaces.wsu),
+            new XAttribute(NameSpaces.xwsu + "Id", id));
+
+    private static XElement AddWsSecurityHeader(X509Certificate certificate) =>
+        XmlUtil.CreateElement(WsseTags.Security,
+            new XAttribute(NameSpaces.xsoap + "mustUnderstand", "1"),
+            new XElement(NameSpaces.xwsse + "BinarySecurityToken",
+                new XAttribute(NameSpaces.xwsu + "Id", binarySecurityTokenRef),
+                EncodingType,
+                ValueType,
+                Convert.ToBase64String(certificate.Export(X509ContentType.Cert
+                ))));
+
+    private static void AddWsuTimestamp(XContainer securityHeader)
+    {
+        var timestamp = XmlUtil.CreateElement(WsuTags.Timestamp);
+        securityHeader.Add(timestamp);
+        var now = DateTime.UtcNow;
+        var nowZeroMilli = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second);
+        string ToXmlDateTime(DateTime d) => d.ToString("O").Remove(d.ToString("O").Length - 4) + "Z";
+        var created = XmlUtil.CreateElement(WsuTags.Created, ToXmlDateTime(nowZeroMilli));
+        var expires = XmlUtil.CreateElement(WsuTags.Expires, ToXmlDateTime(nowZeroMilli.AddMinutes(5)));
+        timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", timestampRef), created, expires);
+    }
+    
     private XElement Body() => new(NameSpaces.xsoap + "Body", new XAttribute(NameSpaces.xwsu + "Id", bodyRef),
         RequestSecurityToken(EndpointReference, MunicipalityCvr, Certificate));
 
@@ -236,49 +282,4 @@ public class KombitStsRequest
                 new XAttribute("Uri", "dk:gov:saml:attribute:CvrNumberIdentifier"),
                 new XElement(NameSpaces.xwsfAuth + "Value", municipalityCvr
                 )));
-
-    private XElement Header()
-    {
-        var header = new XElement(NameSpaces.xsoap + "Header");
-        var action = XmlUtil.CreateElement(WsaTags.Action);
-        action.Add(new XAttribute(NameSpaces.xwsu + "Id", actionRef));
-        header.Add(action);
-        action.Value = WsTrustConstants.Wst13IssueAction;
-
-        var messageId = XmlUtil.CreateElement(WsaTags.MessageId);
-        messageId.Add(new XAttribute(NameSpaces.xwsu + "Id", messageIdRef));
-        header.Add(messageId);
-        messageId.Value = "urn:uuid:" + Guid.NewGuid().ToString("D");
-
-        header.Add(new XElement(NameSpaces.xwsa + "To", WsAddressingTo, new XAttribute(NameSpaces.xwsu + "Id", toRef)));
-        header.Add(new XElement(NameSpaces.xwsa + "ReplyTo", new XAttribute(NameSpaces.xwsu + "Id", replyToRef),
-            new XElement("Address", "http://www.w3.org/2005/08/addressing/anonymous")));
-
-        var security = AddWsSecurityHeader(Certificate);
-        header.Add(security);
-        AddWsuTimestamp(security);
-        return header;
-    }
-
-    private static XElement AddWsSecurityHeader(X509Certificate certificate) =>
-        XmlUtil.CreateElement(WsseTags.Security,
-            new XAttribute(NameSpaces.xsoap + "mustUnderstand", "1"),
-            new XElement(NameSpaces.xwsse + "BinarySecurityToken",
-                new XAttribute(NameSpaces.xwsu + "Id", binarySecurityTokenRef),
-                EncodingType,
-                ValueType,
-                Convert.ToBase64String(certificate.Export(X509ContentType.Cert
-                ))));
-
-    private static void AddWsuTimestamp(XContainer securityHeader)
-    {
-        var timestamp = XmlUtil.CreateElement(WsuTags.Timestamp);
-        securityHeader.Add(timestamp);
-        var now = DateTime.UtcNow;
-        var nowZeroMilli = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second);
-        string ToXmlDateTime(DateTime d) => d.ToString("O").Remove(d.ToString("O").Length - 4) + "Z";
-        var created = XmlUtil.CreateElement(WsuTags.Created, ToXmlDateTime(nowZeroMilli));
-        var expires = XmlUtil.CreateElement(WsuTags.Expires, ToXmlDateTime(nowZeroMilli.AddMinutes(5)));
-        timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", timestampRef), created, expires);
-    }
 }
