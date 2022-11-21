@@ -67,10 +67,9 @@ namespace dk.nsi.seal
             {wsu, "wsu"},
             {wsse, "wsse"},
             {ds, "ds"},
-            {trust, "trust"},
             {tr, "tr"},
             {saml, "saml"},
-			{wst, "wst"},
+            {wst13, "wst"},
             {bpp, "bpp" },
 		};
 

@@ -68,6 +68,86 @@ public class KombitStsRequest
 
             public override void LoadXml(XmlElement element) => throw new NotImplementedException();
         }
+        
+        public static void SignXml(XmlDocument xmlDoc, X509Certificate2 cert)
+{
+        // transformation cert -> key omitted
+        RSACryptoServiceProvider key;
+
+        // Create a SignedXml object. 
+        var signedXml = new XmlSigner(xmlDoc);
+
+        // Add the key to the SignedXml document. 
+        signedXml.SigningKey = cert.GetRSAPrivateKey();
+        signedXml.SignedInfo.SignatureMethod = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+        signedXml.SignedInfo.CanonicalizationMethod = XmlDsigExcC14NTransformUrl;
+
+        // Create a reference to be signed. 
+        var reference = new Reference
+        {
+            Uri = "#foo",
+            DigestMethod = "http://www.w3.org/2001/04/xmlenc#sha256"
+        };
+        // Add an enveloped transformation to the reference. 
+        reference.AddTransform(new XmlDsigEnvelopedSignatureTransform());
+        reference.AddTransform(new XmlDsigExcC14NTransform());
+        signedXml.AddReference(reference);
+
+        var keyInfo = new KeyInfo();
+        var keyInfoData = new KeyInfoX509Data();
+        keyInfoData.AddIssuerSerial(cert.IssuerName.Format(false), cert.SerialNumber);
+        keyInfo.AddClause(keyInfoData);
+        signedXml.KeyInfo = keyInfo;
+
+        // Compute the signature. 
+        signedXml.ComputeSignature();
+
+        // Add prefix "ds:" to signature
+        var signature = signedXml.GetXml();
+        SetSignaturePrefix(signature);
+
+        // Load modified signature back
+        signedXml.LoadXml(signature);
+
+        // this is workaround for overcoming a bug in the library
+        signedXml.SignedInfo.References.Clear();
+
+        // Recompute the signature
+        signedXml.ComputeSignature();
+        var recomputedSignature = Convert.ToBase64String(signedXml.SignatureValue);
+
+        // Replace value of the signature with recomputed one
+        ReplaceSignature(signature, recomputedSignature);
+
+        // Append the signature to the XML document. 
+        xmlDoc.DocumentElement.InsertAfter(xmlDoc.ImportNode(signature, true), xmlDoc.DocumentElement.FirstChild);
+    }
+
+    private static void SetSignaturePrefix(XmlNode node)
+    {
+        if (node.Name == "SecurityTokenReference")
+        {
+            node.Prefix = node.ChildNodes[0].Prefix = "wsse";
+            return;
+        }
+        node.Prefix = "ds";
+        foreach (XmlNode n in node.ChildNodes) { SetSignaturePrefix(n); }
+    }
+
+    private static void ReplaceSignature(XmlElement signature, string newValue)
+    {
+        if (signature == null) throw new ArgumentNullException(nameof(signature));
+        if (signature.OwnerDocument == null) throw new ArgumentException("No owner document", nameof(signature));
+
+        var nsm = new XmlNamespaceManager(signature.OwnerDocument.NameTable);
+        nsm.AddNamespace("ds", XmlDsigNamespaceUrl);
+
+        var signatureValue = signature.SelectSingleNode("ds:SignatureValue", nsm);
+        if (signatureValue == null)
+            throw new Exception("Signature does not contain 'ds:SignatureValue'");
+
+        signatureValue.InnerXml = newValue;
+    }
 
         private XmlDocument Xml { get; }
 
@@ -95,13 +175,35 @@ public class KombitStsRequest
 
             ComputeSignature();
 
+            
+            // return Xml.ToXDocument();
+            
+            // Add prefix "ds:" to signature
+            var signature = GetXml();
+            signature.SetAttribute("xmlns:ds", XmlDsigNamespaceUrl);
+            SetSignaturePrefix(signature);
+
+            // Load modified signature back
+            LoadXml(signature);
+
+            // this is workaround for overcoming a bug in the library
+            SignedInfo.References.Clear();
+
+            // Recompute the signature
+            ComputeSignature();
+            var recomputedSignature = Convert.ToBase64String(SignatureValue);
+
+            // Replace value of the signature with recomputed one
+            ReplaceSignature(signature, recomputedSignature);
+
+            // Append the signature to the XML document.
             const string securityPath = "/soap:Envelope/soap:Header/wsse:Security";
             if (Xml.SelectSingleNode(securityPath, NameSpaces.MakeNsManager(Xml.NameTable)) is not XmlElement xSecurity)
             {
                 throw new InvalidOperationException($"No Signature element found in {securityPath}");
             }
-
-            xSecurity.AppendChild(xSecurity.OwnerDocument.ImportNode(GetXml(), true));
+            
+            xSecurity.AppendChild(xSecurity.OwnerDocument.ImportNode(signature, true));
             return Xml.ToXDocument();
         }
 
@@ -110,8 +212,7 @@ public class KombitStsRequest
             var idElem =
                 doc.SelectSingleNode("//*[@wsu:Id=\"" + id + "\"]", NameSpaces.MakeNsManager(doc.NameTable)) as
                     XmlElement;
-            var tid = idElem ?? base.GetIdElement(doc, id);
-            return tid;
+            return idElem ?? base.GetIdElement(doc, id);
         }
 
         public static XDocument Sign(X509Certificate2 cert, XDocument doc) => new XmlSigner(doc).Sign(cert);
@@ -155,13 +256,13 @@ public class KombitStsRequest
 
     private static XElement RequestSecurityToken(string endpointReference, string municipalityCvr,
         X509Certificate certificate) =>
-        new(NameSpaces.xtrust + "RequestSecurityToken",
-            new XElement(NameSpaces.xtrust + "TokenType", WsseValues.SamlTokenType),
-            new XElement(NameSpaces.xtrust + "RequestType", WsTrustConstants.Wst13IssueRequestType),
+        new(NameSpaces.xwst13 + "RequestSecurityToken",
+            new XElement(NameSpaces.xwst13 + "TokenType", WsseValues.SamlTokenType),
+            new XElement(NameSpaces.xwst13 + "RequestType", WsTrustConstants.Wst13IssueRequestType),
             EndpointReferenceElement(endpointReference),
             Claims(municipalityCvr),
-            new XElement(NameSpaces.xtrust + "KeyType", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey"),
-            new XElement(NameSpaces.xtrust + "UseKey",
+            new XElement(NameSpaces.xwst13 + "KeyType", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey"),
+            new XElement(NameSpaces.xwst13 + "UseKey",
                 new XElement(NameSpaces.xwsse + "BinarySecurityToken",
                     EncodingType,
                     ValueType,
@@ -175,7 +276,7 @@ public class KombitStsRequest
                 )));
 
     private static XElement Claims(string municipalityCvr) =>
-        new(NameSpaces.xtrust + "Claims", new XAttribute("Dialect", WsfAuthValues.ClaimsDialect),
+        new(NameSpaces.xwst13 + "Claims", new XAttribute("Dialect", WsfAuthValues.ClaimsDialect),
             new XElement(NameSpaces.xwsfAuth + "ClaimType",
                 new XAttribute("Uri", "dk:gov:saml:attribute:CvrNumberIdentifier"),
                 new XElement(NameSpaces.xwsfAuth + "Value", municipalityCvr
