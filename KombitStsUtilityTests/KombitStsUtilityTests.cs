@@ -35,7 +35,6 @@ public class KombitStsUtilityTests
         await File.WriteAllTextAsync("StsResponse.xml", response.ToString());
 
         // var encodedRequest = HttpUtility.UrlEncode(ToBase64String(UTF8.GetBytes(request.ToString()))); TODO
-
         // TODO Validate response from STS - use dk.nsi.seal.Model.OioWsTrustMessage and/or dk.nsi.seal.SealUtilities and/or dk.nsi.seal.SealSignedXml and/or dk.nsi.seal.Model.SignatureUtil as inspiration
         // var xmlSigner = new SignedXml(request.ToXml().ToXmlDocument());
         // var res = dsig.VerifySignature(true).ShouldBeTrue();
