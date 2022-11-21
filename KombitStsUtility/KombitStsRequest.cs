@@ -54,20 +54,27 @@ public class KombitStsRequest
     private readonly static XAttribute EncodingType = new("EncodingType",
         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
 
-    private const string binarySecurityToken = "binarySecurityToken";
+    private static readonly string
+        actionRef = "_" + Guid.NewGuid(),
+        messageIdRef = "_" + Guid.NewGuid(),
+        toRef = "_" + Guid.NewGuid(),
+        replyToRef = "_" + Guid.NewGuid(),
+        timestampRef = "TS-" + Guid.NewGuid(),
+        binarySecurityTokenRef = "X509-" + Guid.NewGuid(),
+        bodyRef = "_" + Guid.NewGuid();
+
 
     private class XmlSigner : SignedXml
     {
         private class SecurityTokenReference : KeyInfoClause
         {
             public override XmlElement GetXml() => new XElement(NameSpaces.xwsse + "SecurityTokenReference",
-                    new XElement(NameSpaces.xwsse + "Reference", new XAttribute("URI", $"#{binarySecurityToken}"),
+                    new XElement(NameSpaces.xwsse + "Reference", new XAttribute("URI", $"#{binarySecurityTokenRef}"),
                         ValueType))
                 .ToXmlElement();
 
             public override void LoadXml(XmlElement element) => throw new NotImplementedException();
         }
-
 
         private XmlDocument Xml { get; }
 
@@ -77,7 +84,8 @@ public class KombitStsRequest
 
         private XDocument Sign(X509Certificate2 cert)
         {
-            List("#messageID", "#action", "#timestamp", "#body", "#to", "#replyTo", $"#{binarySecurityToken}")
+            List(actionRef, messageIdRef, toRef, replyToRef, timestampRef, binarySecurityTokenRef, bodyRef)
+                .Map(s => "#" + s)
                 .Iter(s =>
                 {
                     var reference = new Reference { Uri = s };
@@ -94,9 +102,6 @@ public class KombitStsRequest
             KeyInfo = ki;
 
             ComputeSignature();
-
-
-            // return Xml.ToXDocument();
 
             // Add prefix "ds:" to signature
             var signature = GetXml();
@@ -199,11 +204,9 @@ public class KombitStsRequest
         return XmlSigner.Sign(Certificate, document);
     }
 
-    // Needs to write body first, or the assertion validation will fail after signing the message in the header.
-    // Hash values for assertion will change if header is not last?
     private XDocument Envelope() => new(new XElement(NameSpaces.xsoap + "Envelope", Header(), Body()));
 
-    private XElement Body() => new(NameSpaces.xsoap + "Body", new XAttribute(NameSpaces.xwsu + "Id", "body"),
+    private XElement Body() => new(NameSpaces.xsoap + "Body", new XAttribute(NameSpaces.xwsu + "Id", bodyRef),
         RequestSecurityToken(EndpointReference, MunicipalityCvr, Certificate));
 
     private static XElement RequestSecurityToken(string endpointReference, string municipalityCvr,
@@ -238,17 +241,17 @@ public class KombitStsRequest
     {
         var header = new XElement(NameSpaces.xsoap + "Header");
         var action = XmlUtil.CreateElement(WsaTags.Action);
-        action.Add(new XAttribute(NameSpaces.xwsu + "Id", "action"));
+        action.Add(new XAttribute(NameSpaces.xwsu + "Id", actionRef));
         header.Add(action);
         action.Value = WsTrustConstants.Wst13IssueAction;
 
         var messageId = XmlUtil.CreateElement(WsaTags.MessageId);
-        messageId.Add(new XAttribute(NameSpaces.xwsu + "Id", "messageID"));
+        messageId.Add(new XAttribute(NameSpaces.xwsu + "Id", messageIdRef));
         header.Add(messageId);
         messageId.Value = "urn:uuid:" + Guid.NewGuid().ToString("D");
 
-        header.Add(new XElement(NameSpaces.xwsa + "To", WsAddressingTo, new XAttribute(NameSpaces.xwsu + "Id", "to")));
-        header.Add(new XElement(NameSpaces.xwsa + "ReplyTo", new XAttribute(NameSpaces.xwsu + "Id", "replyTo"),
+        header.Add(new XElement(NameSpaces.xwsa + "To", WsAddressingTo, new XAttribute(NameSpaces.xwsu + "Id", toRef)));
+        header.Add(new XElement(NameSpaces.xwsa + "ReplyTo", new XAttribute(NameSpaces.xwsu + "Id", replyToRef),
             new XElement("Address", "http://www.w3.org/2005/08/addressing/anonymous")));
 
         var security = AddWsSecurityHeader(Certificate);
@@ -261,7 +264,7 @@ public class KombitStsRequest
         XmlUtil.CreateElement(WsseTags.Security,
             new XAttribute(NameSpaces.xsoap + "mustUnderstand", "1"),
             new XElement(NameSpaces.xwsse + "BinarySecurityToken",
-                new XAttribute(NameSpaces.xwsu + "Id", binarySecurityToken),
+                new XAttribute(NameSpaces.xwsu + "Id", binarySecurityTokenRef),
                 EncodingType,
                 ValueType,
                 Convert.ToBase64String(certificate.Export(X509ContentType.Cert
@@ -276,6 +279,6 @@ public class KombitStsRequest
         string ToXmlDateTime(DateTime d) => d.ToString("O").Remove(d.ToString("O").Length - 4) + "Z";
         var created = XmlUtil.CreateElement(WsuTags.Created, ToXmlDateTime(nowZeroMilli));
         var expires = XmlUtil.CreateElement(WsuTags.Expires, ToXmlDateTime(nowZeroMilli.AddMinutes(5)));
-        timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", "timestamp"), created, expires);
+        timestamp.Add(new XAttribute(NameSpaces.xwsu + "Id", timestampRef), created, expires);
     }
 }

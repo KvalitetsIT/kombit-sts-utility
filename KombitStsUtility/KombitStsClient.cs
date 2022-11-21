@@ -1,4 +1,6 @@
-﻿using System.Xml.Linq;
+﻿using System.Net;
+using System.Security.Cryptography.X509Certificates;
+using System.Xml.Linq;
 using dk.nsi.seal.Model.Constants;
 using static System.Text.Encoding;
 

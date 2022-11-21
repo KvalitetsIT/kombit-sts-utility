@@ -63,7 +63,7 @@ namespace dk.nsi.seal
         public static Dictionary<string, string> alias = new Dictionary<string, string>
         {
             {soap, "soap"},
-            {wsa, "wsa"},
+            {wsa, "adr"},
             {wsu, "wsu"},
             {wsse, "wsse"},
             {ds, "ds"},
