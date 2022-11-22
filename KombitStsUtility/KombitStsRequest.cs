@@ -47,7 +47,7 @@ public class KombitStsRequest
 
     public X509Certificate2 Certificate { get; }
 
-    public string EndpointReference { get; }
+    public string EndpointEntityId { get; }
 
     private readonly static XAttribute ValueType = new("ValueType",
         "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
@@ -65,14 +65,14 @@ public class KombitStsRequest
         bodyRef = "_" + Guid.NewGuid(),
         securityTokenReference = "SecurityTokenReference";
 
-    public KombitStsRequest(int municipalityCvr, X509Certificate2 certificate, string endpointReference,
+    public KombitStsRequest(int municipalityCvr, X509Certificate2 certificate, string endpointEntityId,
         Uri wsAddressingTo)
-        : this(municipalityCvr.ToString(), certificate, endpointReference, wsAddressingTo) { }
+        : this(municipalityCvr.ToString(), certificate, endpointEntityId, wsAddressingTo) { }
 
-    public KombitStsRequest(string municipalityCvr, X509Certificate2 certificate, string endpointReference,
+    public KombitStsRequest(string municipalityCvr, X509Certificate2 certificate, string endpointEntityId,
         Uri wsAddressingTo)
     {
-        EndpointReference = endpointReference;
+        EndpointEntityId = endpointEntityId;
         WsAddressingTo = wsAddressingTo;
         MunicipalityCvr = municipalityCvr;
         Certificate = certificate;
@@ -81,7 +81,7 @@ public class KombitStsRequest
 
     private XDocument Dom { get; }
 
-    public XDocument ToDom() => Dom;
+    public XDocument ToXDocument() => Dom;
 
     public string ToPrettyString() => Dom.ToString();
 
@@ -131,18 +131,18 @@ public class KombitStsRequest
     }
 
     private XElement Body() => new(NameSpaces.xsoap + "Body", WsuId(bodyRef),
-        RequestSecurityToken(EndpointReference, MunicipalityCvr, Certificate));
+        RequestSecurityToken(EndpointEntityId, MunicipalityCvr, Certificate));
 
     private static IEnumerable<XAttribute> WsuId(string id) =>
         List(new XAttribute(XNamespace.Xmlns + "wsu", NameSpaces.wsu),
             new XAttribute(NameSpaces.xwsu + "Id", id));
 
-    private static XElement RequestSecurityToken(string endpointReference, string municipalityCvr,
+    private static XElement RequestSecurityToken(string endpointEntityId, string municipalityCvr,
         X509Certificate certificate) =>
         new(NameSpaces.xwst13 + "RequestSecurityToken", new XAttribute(XNamespace.Xmlns + "wst", NameSpaces.wst13),
             new XElement(NameSpaces.xwst13 + "TokenType", WsseValues.SamlTokenType),
             new XElement(NameSpaces.xwst13 + "RequestType", WsTrustConstants.Wst13IssueRequestType),
-            AppliesTo(endpointReference),
+            AppliesTo(endpointEntityId),
             Claims(municipalityCvr),
             new XElement(NameSpaces.xwst13 + "KeyType", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey"),
             new XElement(NameSpaces.xwst13 + "UseKey",
@@ -153,11 +153,11 @@ public class KombitStsRequest
                     Convert.ToBase64String(certificate.Export(X509ContentType.Cert
                     )))));
 
-    private static XElement AppliesTo(string endpointReference) =>
+    private static XElement AppliesTo(string endpointEntityId) =>
         new(NameSpaces.xwsp + "AppliesTo", new XAttribute(XNamespace.Xmlns + "wsp", NameSpaces.wsp),
             new XElement(NameSpaces.xwsa + "EndpointReference",
                 new XAttribute(XNamespace.Xmlns + "adr", NameSpaces.wsa),
-                XmlUtil.CreateElement(WsaTags.Address, endpointReference
+                XmlUtil.CreateElement(WsaTags.Address, endpointEntityId
                 )));
 
     private static XElement Claims(string municipalityCvr) =>
