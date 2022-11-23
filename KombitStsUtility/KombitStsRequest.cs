@@ -223,7 +223,7 @@ public class KombitStsRequest
             var recomputedSignature = Convert.ToBase64String(SignatureValue);
 
             // Replace value of the signature with recomputed one
-            ReplaceSignature(signature, recomputedSignature); // TODO Can this be removed?
+            ReplaceSignature(signature, recomputedSignature);
 
             // Append the signature to the XML document.
             const string securityPath = "/soap:Envelope/soap:Header/wsse:Security";

@@ -60,8 +60,9 @@ public class KombitStsUtilityTests
 
         // OIO IDWS REST demo service is called using the access token
         httpClient.DefaultRequestHeaders.Add("Authorization", $"Holder-of-key {accessToken}");
-        httpClient.DefaultRequestHeaders.Add("x-TransaktionsId", "123456");
-        httpClient.DefaultRequestHeaders.Add("x-TransaktionsTid", "2021-07-09T10:15:30+01:00");
+        httpClient.DefaultRequestHeaders.Add("x-TransaktionsId", Guid.NewGuid().ToString());
+        httpClient.DefaultRequestHeaders.Add("x-TransaktionsTid", DateTime.UtcNow.ToString("u").Replace(" ", "T"));
+
         var serviceUri =
             new Uri(
                 "https://exttest.serviceplatformen.dk/service/AccessTokenDemo_1/callDemoService/Testing_1_2_3_Testing");
