@@ -21,7 +21,7 @@ public class KombitStsUtilityTests
         X509Certificate2.CreateFromPemFile(certPemFilePath: "kit-test.cer", keyPemFilePath: "kit-test.pem");
 
     [Fact]
-    public async Task GetRequestFromStsShouldReturnAssertion()
+    public async Task CallDemoServiceWithStsAssertion()
     {
         // Request for STS is created and signed.
         var stsRequest = new KombitStsRequest(
