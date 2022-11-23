@@ -1,11 +1,7 @@
-﻿using dk.nsi.seal.Model.Constants;
-using System.Xml.Linq;
-using dk.nsi.seal;
-using dk.nsi.seal.Model;
+﻿using System.Xml.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Xml;
 using System.Xml;
-using System.Xml.Serialization;
 using static LanguageExt.Prelude;
 
 namespace KombitStsUtility;
@@ -126,8 +122,8 @@ public class KombitStsRequest
         var nowZeroMilli = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second);
         string ToXmlDateTime(DateTime d) => d.ToString("O").Remove(d.ToString("O").Length - 4) + "Z";
         return new XElement(NameSpaces.xwsu + "Timestamp", WsuId(timestampRef),
-            XmlUtil.CreateElement(WsuTags.Created, ToXmlDateTime(nowZeroMilli)),
-            XmlUtil.CreateElement(WsuTags.Expires, ToXmlDateTime(nowZeroMilli.AddMinutes(5))));
+           new XElement(NameSpaces.xwsu + "Created", ToXmlDateTime(nowZeroMilli)),
+           new XElement(NameSpaces.xwsu + "Expires", ToXmlDateTime(nowZeroMilli.AddMinutes(5))));
     }
 
     private XElement Body() => new(NameSpaces.xsoap + "Body", WsuId(bodyRef),
@@ -157,7 +153,7 @@ public class KombitStsRequest
         new(NameSpaces.xwsp + "AppliesTo", new XAttribute(XNamespace.Xmlns + "wsp", NameSpaces.wsp),
             new XElement(NameSpaces.xwsa + "EndpointReference",
                 new XAttribute(XNamespace.Xmlns + "adr", NameSpaces.wsa),
-                XmlUtil.CreateElement(WsaTags.Address, endpointEntityId
+                new XElement(NameSpaces.xwsa + "Address", endpointEntityId
                 )));
 
     private static XElement Claims(string municipalityCvr) =>
@@ -170,6 +166,8 @@ public class KombitStsRequest
 
     public class XmlSigner : SignedXml
     {
+        public static XDocument Sign(X509Certificate2 cert, XDocument doc) => new XmlSigner(doc).Sign(cert);
+
         private class SecurityTokenReference : KeyInfoClause
         {
             public override XmlElement GetXml() => new XElement(NameSpaces.xwsse + securityTokenReference,
@@ -189,10 +187,10 @@ public class KombitStsRequest
         private XDocument Sign(X509Certificate2 cert)
         {
             List(actionRef, messageIdRef, toRef, replyToRef, timestampRef, binarySecurityTokenRef, bodyRef)
-                .Map(s => "#" + s)
-                .Iter(s =>
+                .Map(r => "#" + r)
+                .Iter(r =>
                 {
-                    var reference = new Reference { Uri = s };
+                    var reference = new Reference { Uri = r };
                     reference.AddTransform(new XmlDsigExcC14NTransform());
                     reference.DigestMethod = XmlDsigSHA256Url;
                     AddReference(reference);
@@ -273,7 +271,5 @@ public class KombitStsRequest
 
             signatureValue.InnerXml = newValue;
         }
-
-        public static XDocument Sign(X509Certificate2 cert, XDocument doc) => new XmlSigner(doc).Sign(cert);
     }
 }
