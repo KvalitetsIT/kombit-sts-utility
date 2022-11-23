@@ -17,8 +17,24 @@ namespace KombitStsUtilityTests;
 
 public class KombitStsUtilityTests
 {
-    private static readonly X509Certificate2 Cert =
-        X509Certificate2.CreateFromPemFile(certPemFilePath: "kit-test.cer", keyPemFilePath: "kit-test.pem");
+    private static readonly X509Certificate2 Cert = LoadCertificate(StoreName.My, StoreLocation.CurrentUser);
+        //X509Certificate2.CreateFromPemFile(certPemFilePath: "kit-test.cer", keyPemFilePath: "kit-test.pem");
+
+
+    public static X509Certificate2 LoadCertificate(StoreName storeName, StoreLocation storeLocation)
+    {
+        var store = new X509Store(storeName, storeLocation);
+        store.Open(OpenFlags.ReadOnly);
+        var cleanThumbprint = "19 cb c5 ef 86 c5 fc b0 aa e3 53 27 55 4b fb 71 0a ca dc 2a"; 
+        var result = store.Certificates.Find(X509FindType.FindByThumbprint, cleanThumbprint, false);
+
+        if (result.Count == 0)
+        {
+            throw new ArgumentException("No certificate with thumbprint " + cleanThumbprint + " is found.");
+        }
+
+        return result[0];
+    }
 
     [Fact]
     public async Task CallDemoServiceWithStsAssertion()
@@ -28,6 +44,7 @@ public class KombitStsUtilityTests
             endpointEntityId: "http://entityid.kombit.dk/service/demoservicerest/1",
             certificate: Cert,
             wsAddressingTo: new Uri("https://echo:8443/runtime/services/kombittrust/14/certificatemixed"),
+            //municipalityCvr: 29189846); 
             municipalityCvr: 38163264);
         Should.NotThrow(() => VerifySignature(stsRequest.ToXDocument()).IfLeft(ex => throw ex));
 
