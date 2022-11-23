@@ -44,8 +44,8 @@ public class KombitStsUtilityTests
             endpointEntityId: "http://entityid.kombit.dk/service/demoservicerest/1",
             certificate: Cert,
             wsAddressingTo: new Uri("https://echo:8443/runtime/services/kombittrust/14/certificatemixed"),
-            //municipalityCvr: 29189846); 
-            municipalityCvr: 38163264);
+            municipalityCvr: 29189846); 
+            //municipalityCvr: 38163264);
         Should.NotThrow(() => VerifySignature(stsRequest.ToXDocument()).IfLeft(ex => throw ex));
 
         // STS is called and the assertion in the response is extracted. The signature of the assertion is verified.
