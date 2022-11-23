@@ -246,7 +246,7 @@ public class KombitStsRequest
         {
             if (node.Name == securityTokenReference)
             {
-                node.Prefix = node.ChildNodes[0].Prefix = "wsse";
+                node.Prefix = node.ChildNodes[0]!.Prefix = "wsse";
                 return;
             }
 
