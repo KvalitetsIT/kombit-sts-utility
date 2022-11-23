@@ -1,11 +1,12 @@
-﻿using System.Xml;
+﻿using System.Collections.Immutable;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace KombitStsUtility
 {
     public class NameSpaces
     {
-        public const string 
+        public const string
             wsa = "http://www.w3.org/2005/08/addressing",
             wsa04 = "http://schemas.xmlsoap.org/ws/2004/08/addressing",
             wsa2 = "http://schemas.microsoft.com/ws/2005/05/addressing/none",
@@ -17,7 +18,6 @@ namespace KombitStsUtility
             tr = "http://docs.oasis-open.org/ws-sx/ws-trust/200802",
             wsfAuth = "http://docs.oasis-open.org/wsfed/authorization/200706",
             saml = "urn:oasis:names:tc:SAML:2.0:assertion",
-            HealthContextAssertion = "HealthContextAssertion",
             DGWSAssertion = "DGWSAssertion",
             dgws = "http://www.medcom.dk/dgws/2006/04/dgws-1.0.xsd",
             sosi = "http://sosi.dk/gw/2007.09.01",
@@ -34,7 +34,8 @@ namespace KombitStsUtility
             schemaInstance = "http://www.w3.org/2001/XMLSchema-instance",
             xmlEnc = "http://www.w3.org/2001/04/xmlenc#";
 
-        public static XNamespace xsoap = soap,
+        public static readonly XNamespace
+            xsoap = soap,
             xwsu = wsu,
             xwsa = wsa,
             xwsa04 = wsa04,
@@ -58,40 +59,24 @@ namespace KombitStsUtility
             xschemaInstance = schemaInstance,
             xxmlEnc = xmlEnc;
 
-        public static Dictionary<string, string> alias = new Dictionary<string, string>
-        {
-            {soap, "soap"},
-            {wsa, "adr"},
-            {wsu, "wsu"},
-            {wsse, "wsse"},
-            {ds, "ds"},
-            {tr, "tr"},
-            {saml, "saml"},
-            {wst13, "wst"},
-            {bpp, "bpp" },
-		};
-
-	    public static void SetMissingNamespaces(XDocument doc)
-        {
-            var docnss = new HashSet<string>(doc.Root.Attributes().Where(a => a.Name.Namespace == XNamespace.Xmlns).Select(a => a.Value));
-
-            var q = from kv in alias
-                where !docnss.Contains(kv.Key)
-                select kv;
-
-            foreach (var kv in q)
+        public readonly static ImmutableDictionary<string, string> alias = new Dictionary<string, string>
             {
-                doc.Root.Add(new XAttribute(XNamespace.Xmlns + kv.Value, kv.Key));
+                { soap, "soap" },
+                { wsa, "adr" },
+                { wsu, "wsu" },
+                { wsse, "wsse" },
+                { ds, "ds" },
+                { tr, "tr" },
+                { saml, "saml" },
+                { wst13, "wst" },
+                { bpp, "bpp" },
             }
-        }
+            .ToImmutableDictionary();
 
         public static XmlNamespaceManager MakeNsManager(XmlNameTable nt)
         {
             var mng = new XmlNamespaceManager(nt);
-            foreach (var kv in alias)
-            {
-                mng.AddNamespace(kv.Value, kv.Key);
-            }
+            alias.Iter(kv => mng.AddNamespace(kv.Value, kv.Key));
             return mng;
         }
     }
