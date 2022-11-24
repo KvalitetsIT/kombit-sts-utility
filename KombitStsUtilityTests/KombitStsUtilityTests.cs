@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Xunit;
 using Shouldly;
 using KombitStsUtility;
@@ -27,9 +28,9 @@ public class KombitStsUtilityTests
         var stsRequest = new KombitStsRequest(
             endpointEntityId: "http://entityid.kombit.dk/service/demoservicerest/1",
             certificate: Cert,
-            wsAddressingTo: new Uri("https://echo:8443/runtime/services/kombittrust/14/certificatemixed"),
+            wsAddressingTo: new("https://echo:8443/runtime/services/kombittrust/14/certificatemixed"),
             municipalityCvr: 38163264);
-        Should.NotThrow(() => VerifySignature(stsRequest.ToXDocument()).IfLeft(ex => throw ex));
+        Should.NotThrow(() => VerifySignature(stsRequest.ToXDocument()).IfLeft(err => throw err));
 
         // STS is called and the assertion in the response is extracted. The signature of the assertion is verified.
         var stsUri =
@@ -37,11 +38,13 @@ public class KombitStsUtilityTests
                 "https://adgangsstyring.eksterntest-stoettesystemerne.dk/runtime/services/kombittrust/14/certificatemixed");
         var httpMessageHandler = new HttpClientHandler();
         using var httpClient = new HttpClient(httpMessageHandler);
-        var stsResponse = await (await httpClient.PostAsync(stsUri.ToString(),
-                new StringContent(stsRequest.ToString(), UTF8, "application/soap+xml")))
-            .Content
+        var rawStsResponse = await (await httpClient.PostAsync(stsUri,
+                new StringContent(stsRequest.ToString(), UTF8, "application/soap+xml"))).Content
             .ReadAsStringAsync();
-        var stsAssertion = XElement.Parse(stsResponse).Descendants(NameSpaces.xsaml + "Assertion").First();
+        var stsResponse = XElement.Parse(rawStsResponse);
+        var stsAssertion = stsResponse.Descendants(NameSpaces.xsaml + "Assertion")
+            .HeadOrNone()
+            .IfNone(() => throw Error.New($"STS error response:{NewLine}{stsResponse}"));
         Should.NotThrow(() => VerifySignature(stsAssertion).IfLeft(ex => throw ex));
 
         // The STS assertion is encoded and send to the token endpoint of the service we would like to communicate with.
