@@ -187,8 +187,8 @@ public class KombitStsRequest
         private XDocument Sign(X509Certificate2 cert)
         {
             List(actionRef, messageIdRef, toRef, replyToRef, timestampRef, binarySecurityTokenRef, bodyRef)
-                .Map(r => "#" + r)
-                .Iter(r =>
+                .Map(r => '#' + r)
+                .Do(r =>
                 {
                     var reference = new Reference { Uri = r };
                     reference.AddTransform(new XmlDsigExcC14NTransform());
