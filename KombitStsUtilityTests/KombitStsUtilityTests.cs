@@ -25,7 +25,8 @@ public class KombitStsUtilityTests
     {
         var store = new X509Store(storeName, storeLocation);
         store.Open(OpenFlags.ReadOnly);
-        var cleanThumbprint = "19 cb c5 ef 86 c5 fc b0 aa e3 53 27 55 4b fb 71 0a ca dc 2a"; 
+        var cleanThumbprint = "3b0ec350637cb256d3df4dbe45820c60311fa5aa"; // KIT
+        //var cleanThumbprint = "19 cb c5 ef 86 c5 fc b0 aa e3 53 27 55 4b fb 71 0a ca dc 2a"; // NOVAX
         var result = store.Certificates.Find(X509FindType.FindByThumbprint, cleanThumbprint, false);
 
         if (result.Count == 0)
@@ -44,8 +45,8 @@ public class KombitStsUtilityTests
             endpointEntityId: "http://entityid.kombit.dk/service/demoservicerest/1",
             certificate: Cert,
             wsAddressingTo: new Uri("https://echo:8443/runtime/services/kombittrust/14/certificatemixed"),
-            municipalityCvr: 29189846); 
-            //municipalityCvr: 38163264);
+            //municipalityCvr: 29189846); 
+            municipalityCvr: 38163264);
         Should.NotThrow(() => VerifySignature(stsRequest.ToXDocument()).IfLeft(ex => throw ex));
 
         // STS is called and the assertion in the response is extracted. The signature of the assertion is verified.
