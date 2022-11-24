@@ -11,7 +11,6 @@ using static System.Convert;
 using static System.Environment;
 using static System.Text.Encoding;
 using static System.Web.HttpUtility;
-using Convert = System.Convert;
 
 namespace KombitStsUtilityTests;
 
@@ -154,12 +153,12 @@ public class KombitStsUtilityTests
             var signatureVerified = dsig.VerifySignature(verifyRefDigests);
             if (signatureVerified)
             {
-                errorDescription.Append("Signature " + Convert.ToString(i + 1) + " verified");
+                errorDescription.Append("Signature " + (i + 1) + " verified");
             }
             else
             {
                 success = false;
-                errorDescription.Append("Signature " + Convert.ToString(i + 1) + " invalid");
+                errorDescription.Append("Signature " + (i + 1) + " invalid");
             }
 
             // Check each of the reference digests separately..
@@ -168,13 +167,11 @@ public class KombitStsUtilityTests
             while (j < numRefDigests)
             {
                 var digestVerified = dsig.VerifyReferenceDigest(j);
-                errorDescription.Append(NewLine + "reference digest " + Convert.ToString(j + 1) + " verified = " +
-                                        Convert.ToString(digestVerified));
+                errorDescription.Append(NewLine + "reference digest " + (j + 1) + " verified = " + digestVerified);
                 if (digestVerified == false)
                 {
                     success = false;
-                    errorDescription.Append(NewLine + "    reference digest fail reason: " +
-                                            Convert.ToString(dsig.RefFailReason));
+                    errorDescription.Append(NewLine + "    reference digest fail reason: " + dsig.RefFailReason);
                 }
 
                 j += 1;
